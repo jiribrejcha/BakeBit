@@ -176,7 +176,7 @@ def draw_page():
     elif page_index==1:
         # Draw some shapes.
         # First define some constants to allow easy resizing of shapes.
-        padding = 2
+        padding = 0
         top = padding
         bottom = height-padding
         # Move left to right keeping track of the current x position for drawing shapes.
