@@ -45,6 +45,8 @@ import threading
 import signal
 import os
 import socket
+import fcntl
+import struct
 
 global width
 width=128
@@ -54,12 +56,12 @@ height=64
 global pageCount
 pageCount=2
 global pageIndex
-pageIndex=1
+pageIndex=0
 global showPageIndicator
 showPageIndicator=False
 
 global pageSleep
-pageSleep=300
+pageSleep=120
 global pageSleepCountdown
 pageSleepCountdown=pageSleep
 
@@ -67,7 +69,7 @@ oled.init()  #initialze SEEED OLED display
 oled.setNormalDisplay()      #Set display to normal mode (i.e non-inverse mode)
 oled.setHorizontalMode()
 
-global drawing
+global drawing 
 drawing = False
 
 global image
@@ -76,7 +78,7 @@ global draw
 draw = ImageDraw.Draw(image)
 global fontb24
 fontb24 = ImageFont.truetype('DejaVuSansMono-Bold.ttf', 24);
-global font14
+global font14 
 font14 = ImageFont.truetype('DejaVuSansMono.ttf', 14);
 global smartFont
 smartFont = ImageFont.truetype('DejaVuSansMono-Bold.ttf', 10);
@@ -87,6 +89,14 @@ font11 = ImageFont.truetype('DejaVuSansMono.ttf', 11);
 
 global lock
 lock = threading.Lock()
+
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -127,8 +137,12 @@ def draw_page():
         return
 
     #if the countdown is zero we should be sleeping (blank the display to reduce screenburn)
-    if pageSleepCountdown == 0:
+    if pageSleepCountdown == 1:
         oled.clearDisplay()
+        pageSleepCountdown = pageSleepCountdown - 1
+        return
+
+    if pageSleepCountdown == 0:
         return
 
     pageSleepCountdown = pageSleepCountdown - 1
@@ -137,7 +151,7 @@ def draw_page():
     drawing = True
     lock.release()
 
-    # Draw a black filled box to clear the image.
+    # Draw a black filled box to clear the image.            
     draw.rectangle((0,0,width,height), outline=0, fill=0)
     # Draw current page indicator
     if showPageIndicator:
@@ -167,7 +181,10 @@ def draw_page():
         bottom = height-padding
         # Move left to right keeping track of the current x position for drawing shapes.
         x = 0
-	IPAddress = get_ip()
+        try:
+            IPAddress = get_ip_address('eth0')
+        except:
+            IPAddress = get_ip()
         cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
         CPU = subprocess.check_output(cmd, shell = True )
         cmd = "free -m | awk 'NR==2{printf \"Mem: %s/%sMB %.2f%%\", $3,$2,$3*100/$2 }'"
@@ -261,7 +278,7 @@ def receive_signal(signum, stack):
             if page_index==4:
                 update_page_index(5)
                 draw_page()
-
+ 
             else:
                 update_page_index(0)
                 draw_page()
@@ -280,8 +297,10 @@ def receive_signal(signum, stack):
 
 
 image0 = Image.open('friendllyelec.png').convert('1')
-#image0 = Image.open('newlogo.png').convert('1')
+image1 = Image.open('DietPI.png').convert('1')
 oled.drawImage(image0)
+time.sleep(2)
+oled.drawImage(image1)
 time.sleep(2)
 
 signal.signal(signal.SIGUSR1, receive_signal)
@@ -315,7 +334,7 @@ while True:
             os.system('systemctl poweroff')
             break
         time.sleep(1)
-    except KeyboardInterrupt:                                                                                                          
-        break                     
-    except IOError:                                                                              
+    except KeyboardInterrupt:
+        break
+    except IOError:
         print ("Error")
