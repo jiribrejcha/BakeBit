@@ -122,16 +122,16 @@ echo "To Restart type sudo reboot"
 echo "To finish changes, we will reboot the Pi."
 echo "Pi must reboot for changes and updates to take effect."
 echo "If you need to abort the reboot, press Ctrl+C.  Otherwise, reboot!"
-echo "Rebooting in 5 seconds!"
-sleep 1
-echo "Rebooting in 4 seconds!"
-sleep 1
-echo "Rebooting in 3 seconds!"
-sleep 1
-echo "Rebooting in 2 seconds!"
-sleep 1
-echo "Rebooting in 1 seconds!"
-sleep 1
-echo "Rebooting now!  "
-sleep 1
-sudo reboot
+# echo "Rebooting in 5 seconds!"
+# sleep 1
+# echo "Rebooting in 4 seconds!"
+# sleep 1
+# echo "Rebooting in 3 seconds!"
+# sleep 1
+# echo "Rebooting in 2 seconds!"
+# sleep 1
+# echo "Rebooting in 1 seconds!"
+# sleep 1
+# echo "Rebooting now!  "
+# sleep 1
+# sudo reboot
