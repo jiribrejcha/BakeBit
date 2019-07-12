@@ -1,38 +1,4 @@
-#! /bin/bash
-echo "Welcome to BakeBit Installer."
-echo " "
-echo "Requirements:"
-echo "1) Must be connected to the internet"
-echo "2) This script must be run as root user"
-echo " "
-echo "Steps:"
-echo "Installs package dependencies:"
-echo "   - python2.7        python2.7"
-echo "   - python-pip       alternative Python package installer"
-echo "   - git              fast, scalable, distributed revision control system"
-echo "   - libi2c-dev       userspace I2C programming library development files"
-echo "   - python-serial    pyserial - module encapsulating access for the serial port"
-echo "   - i2c-tools        This Python module allows SMBus access through the I2C /dev"
-echo "   - python-smbus     Python bindings for Linux SMBus access through i2c-dev"
-echo "   - minicom          friendly menu driven serial communication program"
-echo "   - psutil           a cross-platform process and system utilities module for Python"
-echo "   - WiringNP         a GPIO access library for NanoPi NEO"
-echo " "
-echo " NanoPi will reboot after completion."
-echo " "
-echo " "
-sleep 5
-
-echo " "
-echo "Check for internet connectivity..."
-echo "=================================="
-wget -q --tries=2 --timeout=100 http://www.baidu.com -O /dev/null
-if [ $? -eq 0 ];then
-	echo "Connected"
-else
-	echo "Unable to Connect, try again !!!"
-	exit 0
-fi
+#!/bin/bash
 
 USER_ID=$(/usr/bin/id -u)
 USER_NAME=$(/usr/bin/who am i | awk '{ print $1 }')
@@ -43,21 +9,6 @@ if [ ${USER_ID} -ne 0 ]; then
     echo "Please run this as root."
     exit 1
 fi
-echo ""
-echo " Checking For Updates  "
-sudo apt-get update --yes
-echo "======================="
-
-echo " "
-echo "Installing Dependencies"
-echo "======================="
-sudo apt-get install python2.7 -y
-sudo apt-get install python-pip git libi2c-dev python-serial i2c-tools python-smbus minicom python-dev libfreetype6-dev -y
-yes | sudo pip install --upgrade pip
-yes | sudo pip install image
-# yes | sudo pip uninstall pillow
-# yes | sudo pip install --no-cache-dir pillow
-yes | sudo pip install pillow
 
 if [ -d RPi.GPIO-0.5.11 ]; then
     cd RPi.GPIO-0.5.11
