@@ -22,8 +22,6 @@ if [ -d psutil-0.5.0 ]; then
     cd ..
 fi
 
-echo "Dependencies installed"
-
 if [ -d WiringNP ]; then
     cd WiringNP
     git pull
@@ -32,7 +30,7 @@ else
     cd WiringNP
 fi
 
-sudo ./build
+./build
 RES=$?
 
 if [ $RES -ne 0 ]; then
@@ -44,9 +42,6 @@ echo "WiringNP Installed"
 
 sudo adduser ${USER_NAME} i2c
 
-echo " "
-echo "Install smbus for python"
-sudo apt-get install python-smbus -y
 
 echo " "
 echo "Making libraries global . . ."
