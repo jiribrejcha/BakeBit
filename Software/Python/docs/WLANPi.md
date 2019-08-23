@@ -23,7 +23,7 @@ Log in to the WLANPi as the "wlanpi" user. Copy the archive file into the /home/
 
 Once the files are extracted, reboot the WLANPi and the new menu system should be visible on the OLED display.
 
-![WLANPi Menu](https://github.com/WLAN-Pi/wlanpi-nanohat-oled/blob/master/images/wlanpi_menu.jpg)
+![WLANPi Menu](https://github.com/WLAN-Pi/BakeBit/blob/master/Software/Python/docs/images/wlanpi_menu.jpg)
 
 ## Menu Structure
 
@@ -40,7 +40,7 @@ When a page of information is being displayed, an "Exit" button is provided to e
 The menu navigation system concepts are shown below:
 
 
-![WLANPi Menu Navigation](https://github.com/WLAN-Pi/wlanpi-nanohat-oled/blob/master/images/Navigation.png)
+![WLANPi Menu Navigation](https://github.com/WLAN-Pi/BakeBit/blob/master/Software/Python/docs/images/Navigation.png)
 
 
 ## Adding to the Menu Navigation Hierarchy
@@ -52,7 +52,7 @@ The menu system is defined by a Python hierarchical data structure. By adding ne
 The data structure is shown (with annotations) below:
 
 
-![WLANPi Menu Data Structure](https://github.com/WLAN-Pi/wlanpi-nanohat-oled/blob/master/images/Menu_Data_Structure.png)
+![WLANPi Menu Data Structure](https://github.com/WLAN-Pi/BakeBit/blob/master/Software/Python/docs/images/Menu_Data_Structure.png)
 
 The initial data structure has just 2 menu levels, but could be extended to further depths if required by simply extending the data structure.
 
