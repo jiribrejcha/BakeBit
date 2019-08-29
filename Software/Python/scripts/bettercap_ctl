@@ -14,7 +14,7 @@
 set -e
 
 NAME=bettercap_ctl
-HOME_DIR=/home/wlanpi/nanohat-oled-scripts
+HOME_DIR=/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts
 DESC="Script to switch bettercap on/off"
 VERSION=0.03
 
