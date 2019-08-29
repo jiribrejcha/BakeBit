@@ -13,7 +13,7 @@
 set -e
 
 NAME=profiler_ctl
-HOME_DIR=/home/wlanpi/nanohat-oled-scripts
+HOME_DIR=/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts
 REPORTS_DIR=/var/www/html/profiler/reports
 DESC="Script to switch profiler on/off"
 VERSION=0.02
