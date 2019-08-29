@@ -13,7 +13,7 @@
 set -e
 
 NAME=kismet_ctl
-HOME_DIR=/home/wlanpi/nanohat-oled-scripts
+HOME_DIR=/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts
 DESC="Script to switch kismet on/off"
 VERSION=0.02
 
