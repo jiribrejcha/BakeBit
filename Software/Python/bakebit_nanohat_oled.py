@@ -150,9 +150,9 @@ wconsole_switcher_file = '/etc/wconsole/wconsole_switcher'
 hotspot_switcher_file = '/etc/wlanpihotspot/hotspot_switcher'
 
 # helper scripts to launch misc processes
-kismet_ctl_file = '/home/wlanpi/nanohat-oled-scripts/kismet_ctl'
-bettercap_ctl_file = '/home/wlanpi/nanohat-oled-scripts/bettercap_ctl'
-profiler_ctl_file = '/home/wlanpi/nanohat-oled-scripts/profiler_ctl'
+kismet_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/kismet_ctl'
+bettercap_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/bettercap_ctl'
+profiler_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/profiler_ctl'
 
 # Linux programs
 ifconfig_file = '/sbin/ifconfig'
