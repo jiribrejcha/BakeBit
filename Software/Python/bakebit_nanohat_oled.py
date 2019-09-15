@@ -1135,18 +1135,19 @@ def show_lldp_neighbour():
     global display_state
 
     neighbour_info = []
+    neighbour_cmd = "sudo cat /tmp/lldpneigh.txt"
 
-    neighbour_cmd = "sudo cat /home/wlanpi/networkinfo/lldpneigh.txt"
+    if os.path.exists(neighbour_cmd):
 
-    try:
-        neighbour_output = subprocess.check_output(neighbour_cmd, shell=True)
-        neighbour_info = neighbour_output.split('\n')
+        try:
+            neighbour_output = subprocess.check_output(neighbour_cmd, shell=True)
+            neighbour_info = neighbour_output.split('\n')
 
-    except Exception as ex:
-        error_descr = "Issue getting LLDP neighbour"
-        error= [ "Err: Neighbour command error" ]
-        display_simple_table(error, back_button_req=1)
-        return
+        except Exception as ex:
+            error_descr = "Issue getting LLDP neighbour"
+            error= [ "Err: Neighbour command error" ]
+            display_simple_table(error, back_button_req=1)
+            return
 
     if len(neighbour_info) == 0:
         neighbour_info.append("No neighbour")
@@ -1178,15 +1179,17 @@ def show_vlan():
 
     vlan_cmd = "sudo grep -a VLAN /home/wlanpi/networkinfo/lldpneigh.txt"
 
-    try:
-        vlan_output = subprocess.check_output(vlan_cmd, shell=True)
-        vlan_info = vlan_output.split('\n')
+    if os.path.exists(vlan_cmd):
 
-    except Exception as ex:
-        error_descr = "Issue getting VLAN info"
-        error= [ "No VLAN found" ]
-        display_simple_table(error, back_button_req=1)
-        return
+        try:
+            vlan_output = subprocess.check_output(vlan_cmd, shell=True)
+            vlan_info = vlan_output.split('\n')
+
+        except Exception as ex:
+            error_descr = "Issue getting VLAN info"
+            error= [ "No VLAN found" ]
+            display_simple_table(error, back_button_req=1)
+            return
 
     if len(vlan_info) == 0:
         vlan_info.append("No VLAN found")
