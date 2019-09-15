@@ -37,20 +37,20 @@ History:
  0.16   Added home page on boot-up.
         Improved mode switch dialogs
         Added more try statements to improve system calls robustness
-        Simplified menu data structure for mode switch consistency (24/07/19)
+        Simplified menu data structure for mode switch consistency (24th Jul 2019)
  0.17   Fixed bug with wireless console title missing
         Added Wi-Fi hotspot mode
-        Added mode indicator on home page (26/07/19)
- 0.18   Added exit to home page option from top of menu (27/07/19)
- 0.19   Added additional menu items to support start/stop/status of kismet (30/07/19)  
+        Added mode indicator on home page (26th Jul 2019)
+ 0.18   Added exit to home page option from top of menu (27th Jul 2019)
+ 0.19   Added additional menu items to support start/stop/status of kismet (30th Jul 2019)  
  0.20   Added bettercap web-ui support 
         Moved kismet and bettercap ctl scripts to common dir structure under
-        /home/wlanpi/nanohat-oled-scripts (01/08/19)
+        /home/wlanpi/nanohat-oled-scripts (1st Aug 2019)
  0.21   Added profiler start/stop via front panel menu & status info.
-        Re-organised menu system to have dedicated "apps" area. (02/08/19)
+        Re-organised menu system to have dedicated "apps" area. (2nd Aug 2019)
  0.22   Added Ethernet port speed support via Ethtool on Classic mode
-        home page(03/08/19)
- 0.23   Added LLDP updates submitted by Jiri Brejcha
+        home page(3rd Aug 2019)
+ 0.23   Added LLDP & eth0 updates submitted by Jiri Brejcha (15th Sep 2019)
         
 
 To do:
@@ -74,7 +74,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.22 (beta)"
+__version__ = "0.23 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
