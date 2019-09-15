@@ -155,6 +155,9 @@ kismet_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/kism
 bettercap_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/bettercap_ctl'
 profiler_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/profiler_ctl'
 
+# lldp data file name
+lldpneigh_file = '/tmp/lldpneigh.txt'
+
 # Linux programs
 ifconfig_file = '/sbin/ifconfig'
 iw_file = '/usr/sbin/iw'
@@ -1098,7 +1101,7 @@ def show_dns():
     '''
     global display_state
 
-#detect configured DNS servers
+    #detect configured DNS servers
     dns_info = []
     dns_cmd = "sudo cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f2"
 
@@ -1135,9 +1138,9 @@ def show_lldp_neighbour():
     global display_state
 
     neighbour_info = []
-    neighbour_cmd = "sudo cat /tmp/lldpneigh.txt"
+    neighbour_cmd = "sudo cat " + lldpneigh_file
 
-    if os.path.exists(neighbour_cmd):
+    if os.path.exists(lldpneigh_file):
 
         try:
             neighbour_output = subprocess.check_output(neighbour_cmd, shell=True)
@@ -1177,9 +1180,9 @@ def show_vlan():
 
     vlan_info = []
 
-    vlan_cmd = "sudo grep -a VLAN /home/wlanpi/networkinfo/lldpneigh.txt"
+    vlan_cmd = "sudo grep -a VLAN " + lldpneigh_file
 
-    if os.path.exists(vlan_cmd):
+    if os.path.exists(lldpneigh_file):
 
         try:
             vlan_output = subprocess.check_output(vlan_cmd, shell=True)
