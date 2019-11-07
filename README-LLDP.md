@@ -16,7 +16,7 @@ Every time eth0 interface goes up, WLAN Pi starts watching for LLDP packets. Whe
 
 After eth0 goes down, the cache file gets flushed.
 
-# Installation steps
+# How to install
 
 1. Install vanilla v1.8.3 image from Github
 2. Clone the LLDP branch to a vanilla WLAN Pi
