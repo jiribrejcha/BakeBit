@@ -31,7 +31,7 @@ sudo reboot
 sudo crontab -e
 5. And add 2 missing scripts which will be automatically started after reboot:
 @reboot /home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/networkinfoeth0up.sh
-@reboot /home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/networkinfoeth0down.sh (edited) 
+@reboot /home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/networkinfoeth0down.sh
 
 # Contact
 [@jiribrejcha](http://twitter.com/jiribrejcha)
