@@ -34,4 +34,4 @@ sudo crontab -e
 @reboot /home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/networkinfoeth0down.sh (edited) 
 
 # Contact
-@jiribrejcha
+[@jiribrejcha](http://twitter.com/jiribrejcha)
