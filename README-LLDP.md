@@ -1,15 +1,15 @@
 # networkinfo
 Adds 3 new menus to the existing menu structure:
 
-## ipconfig
+### ipconfig
 
 Shows ip configuration of the eth0 interface.
 
-## DNS servers
+### DNS servers
 
 Displays all configured DNS servers.
 
-## Show LLDP neighbour
+### Show LLDP neighbour
 This only works on the in-built Ethernet adapter eth0.
 
 Every time eth0 interface goes up, WLAN Pi starts watching for LLDP packets. Whenever it detects one, it parses and caches the neighbour information to a text file.
