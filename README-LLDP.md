@@ -1,13 +1,13 @@
 # networkinfo
-Adds 3 new menus to the existing menu structure:
+Adds 4 new menus to the existing menu structure:
 
-### ipconfig
+### eth0 ipconfig
 
 Shows ip configuration of the eth0 interface.
 
-### DNS servers
+### eth0 VLAN tag
 
-Displays all configured DNS servers.
+Shows access VLAN number.
 
 ### Show LLDP neighbour
 This only works on the in-built Ethernet adapter eth0.
@@ -16,9 +16,13 @@ Every time eth0 interface goes up, WLAN Pi starts watching for LLDP packets. Whe
 
 Use the "LLDP neighbour" menu to view all neighbour details. 
 
-![WLAN Pi LLLDP neighbour menu](https://pbs.twimg.com/media/ECqXuG2WkAA1PYF?format=jpg&name=large)
+![WLAN Pi LLLDP neighbour menu](https://pbs.twimg.com/media/ECqXuG2WkAA1PYF?format=jpg&name=small)
 
 After eth0 goes down, the cache file gets flushed.
+
+### DNS servers
+
+Displays all configured DNS servers.
 
 # How to install
 
