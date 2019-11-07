@@ -20,18 +20,18 @@ After eth0 goes down, the cache file gets flushed.
 
 1. Install vanilla v1.8.3 image from Github
 2. Clone the LLDP branch to a vanilla WLAN Pi
-sudo apt-get update
-sudo apt-get install gawk
-cd ~/NanoHatOLED/
-mv BakeBit BakeBit.orig
-git clone -b lldp https://github.com/WLAN-Pi/BakeBit.git
+> sudo apt-get update
+> sudo apt-get install gawk
+> cd ~/NanoHatOLED/
+> mv BakeBit BakeBit.orig
+> git clone -b lldp https://github.com/WLAN-Pi/BakeBit.git
 3. Reboot
-sudo reboot
+> sudo reboot
 4. Edit cron tasks
 sudo crontab -e
 5. And add 2 missing scripts which will be automatically started after reboot:
-@reboot /home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/networkinfoeth0up.sh
-@reboot /home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/networkinfoeth0down.sh
+> @reboot /home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/networkinfoeth0up.sh
+> @reboot /home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/networkinfoeth0down.sh
 
 # Contact
 [@jiribrejcha](http://twitter.com/jiribrejcha)
