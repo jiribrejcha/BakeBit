@@ -14,6 +14,10 @@ This only works on the in-built Ethernet adapter eth0.
 
 Every time eth0 interface goes up, WLAN Pi starts watching for LLDP packets. Whenever it detects one, it parses and caches the neighbour information to a text file.
 
+Use the "LLDP neighbour" menu to view all neighbour details. 
+
+![WLAN Pi LLLDP neighbour menu](https://pbs.twimg.com/media/ECqXuG2WkAA1PYF?format=jpg&name=large)
+
 After eth0 goes down, the cache file gets flushed.
 
 # How to install
