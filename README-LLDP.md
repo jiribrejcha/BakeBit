@@ -22,7 +22,7 @@ After eth0 goes down, the cache file gets flushed.
 
 # How to install
 
-1. Install [vanilla v1.8.3 image from Github](https://github.com/WLAN-Pi/wlanpi/releases)
+1. Install [vanilla v1.8.3 image from Github](https://github.com/WLAN-Pi/wlanpi/releases){:height="50%" width="50%"}
 2. Clone the LLDP branch to a vanilla WLAN Pi
 
 ```
