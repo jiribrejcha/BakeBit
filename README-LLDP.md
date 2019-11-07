@@ -9,7 +9,7 @@ Shows ip configuration of the eth0 interface.
 
 Shows access VLAN number.
 
-### Show LLDP neighbour
+### LLDP neighbour
 This only works on the in-built Ethernet adapter eth0.
 
 Every time eth0 interface goes up, WLAN Pi starts watching for LLDP packets. Whenever it detects one, it parses and caches the neighbour information to a text file.
