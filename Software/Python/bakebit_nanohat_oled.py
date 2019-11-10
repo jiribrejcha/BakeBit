@@ -279,7 +279,14 @@ def display_simple_table(item_list, back_button_req=0, title='', font="small"):
         font_offset += font_size
         table_display_max -=1
     
+    previous_table_list_length = table_list_length
     table_list_length = len(item_list)
+
+    # if table length changes, reset current scroll selection
+    # e.g. when showing lldp table info and eth cable 
+    # pulled so list size changes
+    if table_list_length != previous_table_list_length:
+        current_scroll_selection = 0
     
     # if we're going to scroll of the end of the list, adjust pointer
     if current_scroll_selection + table_display_max > table_list_length:
@@ -1029,7 +1036,7 @@ def show_eth0_ipconfig():
 
     #detect default gateway for eth0
     dg_info = []
-    dg_cmd = "route -n | grep G | grep eth0 | cut -d ' ' -f 10"
+    dg_cmd = "/sbin/route -n | grep G | grep eth0 | cut -d ' ' -f 10"
 
     try:
         dg_info = "DG: " + subprocess.check_output(dg_cmd, shell=True)
@@ -1530,7 +1537,7 @@ def home_page():
         # get Ethernet port info (...for Jerry)
         try:
             #eth_speed_info  = subprocess.check_output("{} eth0  | grep -i speed | cut -d' ' -f2".format(ethtool_file), shell=True)
-            eth_info = subprocess.check_output('{} eth0'.format(ethtool_file), shell=True)
+            eth_info = subprocess.check_output('{} eth0 2>/dev/null'.format(ethtool_file), shell=True)
             speed_re = re.findall('Speed\: (.*\/s)', eth_info, re.MULTILINE)
             duplex_re = re.findall('Duplex\: (.*)', eth_info, re.MULTILINE)
             link_re = re.findall('Link detected\: (.*)', eth_info, re.MULTILINE)
