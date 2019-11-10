@@ -966,7 +966,7 @@ def show_ufw():
     if result_cache == False:
     
         try:
-            ufw_output = subprocess.check_output("{} status".format(ufw_file), shell=True)
+            ufw_output = subprocess.check_output("sudo {} status".format(ufw_file), shell=True)
             ufw_info = ufw_output.split('\n')
             result_cache = ufw_info # cache results
         except Exception as ex:
