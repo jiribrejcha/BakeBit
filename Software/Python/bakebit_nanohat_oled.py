@@ -51,6 +51,7 @@ History:
  0.22   Added Ethernet port speed support via Ethtool on Classic mode
         home page(3rd Aug 2019)
  0.23   Added LLDP & eth0 updates submitted by Jiri Brejcha (15th Sep 2019)
+ 0.24   Added usb0 as default to disply when eth0 down (16th Nov 2019)
         
 
 To do:
@@ -74,7 +75,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.23 (beta)"
+__version__ = "0.24 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
@@ -1554,6 +1555,12 @@ def home_page():
             
         except Exception as ex:
             # Something went wrong...show nothing
+            mode_name = ""
+        
+        # If eth0 is down, lets show the usb0 IP address
+        # in case anyone uses OTG conection & is confused
+        if mode_name == "Link down":
+            if_name = "usb0"
             mode_name = ""
     
     ip_addr_cmd = "ip addr show {} | grep -Po \'inet \K[\d.]+\'".format(if_name) 
