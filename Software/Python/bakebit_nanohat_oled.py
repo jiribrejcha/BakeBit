@@ -176,7 +176,7 @@ if os.path.isfile(hotspot_mode_file):
 # get & the current version of WLANPi image
 ver_cmd = "grep \"WLAN Pi v\" /var/www/html/index.html | sed \"s/<[^>]\+>//g\""
 try:
-    wlanpi_ver = subprocess.check_output(ver_cmd, shell = True )
+    wlanpi_ver = subprocess.check_output(ver_cmd, shell = True ).strip()
 except:
     wlanpi_ver = "unknown"
 
