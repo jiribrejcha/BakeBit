@@ -1091,6 +1091,42 @@ def show_eth0_ipconfig():
 
     eth0_ipconfig_info.append(duplex_info)
 
+    #detect eth0 dhcp server name
+    dhcpsrv_info = []
+    dhcpsrv_cmd = "grep \"server-name\" /var/lib/dhcp/dhclient.eth0.leases | tail -1 | cut -d '\"' -f2"
+
+    try:
+        dhcpsrv_info = "DHCPs: " + subprocess.check_output(dhcpsrv_cmd, shell=True)
+
+    except Exception as ex:
+        error_descr = "Issue getting eth0 DHCP server"
+        dhcpsrverror= [ "Err: DHCP server command error" ]
+        display_simple_table(dhcpsrverror, back_button_req=1)
+        return
+
+    if len(dhcpsrv_info) == 0:
+        eth0_ipconfig_info.append("N/A")
+
+    eth0_ipconfig_info.append(dhcpsrv_info)
+
+    #detect eth0 dhcp server IP address
+    dhcpsrvip_info = []
+    dhcpsrvip_cmd = "grep \"option dhcp-server-identifier\" /var/lib/dhcp/dhclient.eth0.leases | tail -1 | tail -1 | grep -E -o \"([0-9]{1,3}[\.]){3}[0-9]{1,3}\""
+
+    try:
+        dhcpsrvip_info = "DHCPs: " + subprocess.check_output(dhcpsrvip_cmd, shell=True)
+
+    except Exception as ex:
+        error_descr = "Issue getting DHCP server IP address"
+        dhcpsrviperror= [ "Err: DHCP server IP address error" ]
+        display_simple_table(dhcpsrviperror, back_button_req=1)
+        return
+
+    if len(dhcpsrvip_info) == 0:
+        eth0_ipconfig_info.append("N/A")
+
+    eth0_ipconfig_info.append(dhcpsrvip_info)
+
     # final chop down of the string to fit the display
     for n in eth0_ipconfig_info:
         n = n[0:19]
