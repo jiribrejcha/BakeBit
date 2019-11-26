@@ -37,19 +37,21 @@ History:
  0.16   Added home page on boot-up.
         Improved mode switch dialogs
         Added more try statements to improve system calls robustness
-        Simplified menu data structure for mode switch consistency (24/07/19)
+        Simplified menu data structure for mode switch consistency (24th Jul 2019)
  0.17   Fixed bug with wireless console title missing
         Added Wi-Fi hotspot mode
-        Added mode indicator on home page (26/07/19)
- 0.18   Added exit to home page option from top of menu (27/07/19)
- 0.19   Added additional menu items to support start/stop/status of kismet (30/07/19)  
+        Added mode indicator on home page (26th Jul 2019)
+ 0.18   Added exit to home page option from top of menu (27th Jul 2019)
+ 0.19   Added additional menu items to support start/stop/status of kismet (30th Jul 2019)  
  0.20   Added bettercap web-ui support 
         Moved kismet and bettercap ctl scripts to common dir structure under
-        /home/wlanpi/nanohat-oled-scripts (01/08/19)
+        /home/wlanpi/nanohat-oled-scripts (1st Aug 2019)
  0.21   Added profiler start/stop via front panel menu & status info.
-        Re-organised menu system to have dedicated "apps" area. (02/08/19)
+        Re-organised menu system to have dedicated "apps" area. (2nd Aug 2019)
  0.22   Added Ethernet port speed support via Ethtool on Classic mode
-        home page(03/08/19)
+        home page(3rd Aug 2019)
+ 0.23   Added LLDP & eth0 updates submitted by Jiri Brejcha (15th Sep 2019)
+ 0.24   Added usb0 as default to disply when eth0 down (16th Nov 2019)
         
 
 To do:
@@ -73,7 +75,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.22 (beta)"
+__version__ = "0.24 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
@@ -154,6 +156,10 @@ kismet_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/kism
 bettercap_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/bettercap_ctl'
 profiler_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/profiler_ctl'
 
+# cdp and lldp networkinfo data file names
+lldpneigh_file = '/tmp/lldpneigh.txt'
+cdpneigh_file = '/tmp/cdpneigh.txt'
+
 # Linux programs
 ifconfig_file = '/sbin/ifconfig'
 iw_file = '/usr/sbin/iw'
@@ -171,7 +177,7 @@ if os.path.isfile(hotspot_mode_file):
 # get & the current version of WLANPi image
 ver_cmd = "grep \"WLAN Pi v\" /var/www/html/index.html | sed \"s/<[^>]\+>//g\""
 try:
-    wlanpi_ver = subprocess.check_output(ver_cmd, shell = True )
+    wlanpi_ver = subprocess.check_output(ver_cmd, shell = True ).strip()
 except:
     wlanpi_ver = "unknown"
 
@@ -275,7 +281,14 @@ def display_simple_table(item_list, back_button_req=0, title='', font="small"):
         font_offset += font_size
         table_display_max -=1
     
+    previous_table_list_length = table_list_length
     table_list_length = len(item_list)
+
+    # if table length changes, reset current scroll selection
+    # e.g. when showing lldp table info and eth cable 
+    # pulled so list size changes
+    if table_list_length != previous_table_list_length:
+        current_scroll_selection = 0
     
     # if we're going to scroll of the end of the list, adjust pointer
     if current_scroll_selection + table_display_max > table_list_length:
@@ -955,7 +968,7 @@ def show_ufw():
     if result_cache == False:
     
         try:
-            ufw_output = subprocess.check_output("{} status".format(ufw_file), shell=True)
+            ufw_output = subprocess.check_output("sudo {} status".format(ufw_file), shell=True)
             ufw_info = ufw_output.split('\n')
             result_cache = ufw_info # cache results
         except Exception as ex:
@@ -995,6 +1008,253 @@ def show_ufw():
     display_list_as_paged_table(port_entries, back_button_req=1, title='--UFW Summary--')
     
     return
+
+def show_eth0_ipconfig():
+
+    '''
+    Return IP configuration of eth0 including IP, default gateway, DNS servers
+    '''
+    global display_state
+
+    eth0_ipconfig_info = []
+
+    #detect IP address of eth0 interface
+    ipa_info = []
+    ipa = "ip a | gawk --re-interval '/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/{print $0}' | grep eth0 | cut -d ' ' -f 6"
+
+    try:
+        ipa_info = subprocess.check_output(ipa, shell=True)
+
+    except Exception as ex:
+        error_descr = "Issue getting IP address using ip a command"
+        ipaerror= [ "Err: ip a error" ]
+        display_simple_table(ipaerror, back_button_req=1)
+        return
+   
+    if len(ipa_info) == 0:
+        eth0_ipconfig_info.append("No IP address")
+    else:
+        eth0_ipconfig_info.append(ipa_info)
+
+    #detect default gateway for eth0
+    dg_info = []
+    dg_cmd = "/sbin/route -n | grep G | grep eth0 | cut -d ' ' -f 10"
+
+    try:
+        dg_info = "DG: " + subprocess.check_output(dg_cmd, shell=True)
+
+    except Exception as ex:
+        error_descr = "Issue getting default gateway using route command"
+        dgerror= [ "Err: route command error" ]
+        display_simple_table(dgerror, back_button_req=1)
+        return
+
+    if len(dg_info) == 0:
+        eth0_ipconfig_info.append("No default gateway")
+
+    eth0_ipconfig_info.append(dg_info)
+
+   #detect speed on eth0 interface
+    speed_info = []
+    speed_cmd = "sudo ethtool eth0 | grep -q \"Link detected: yes\" && sudo ethtool eth0 | grep \"Speed\" | cut -d ' ' -f 2 | sed 's/....$//' || echo \"Disconnected\""
+
+    try:
+        speed_info = "Speed: " + subprocess.check_output(speed_cmd, shell=True)
+
+    except Exception as ex:
+        error_descr = "Issue getting Ethernet speed information"
+        speederror= [ "Err: ethtool command error" ]
+        display_simple_table(speederror, back_button_req=1)
+        return
+
+    if len(speed_info) == 0:
+        eth0_ipconfig_info.append("N/A")
+
+    eth0_ipconfig_info.append(speed_info)
+
+    #detect duplex on eth0 interface
+    duplex_info = []
+    duplex_cmd = "sudo ethtool eth0 | grep -q \"Link detected: yes\" && sudo ethtool eth0 | grep \"Duplex\" | cut -d ' ' -f 2 || echo \"Disconnected\""
+
+    try:
+        duplex_info = "Duplex: " + subprocess.check_output(duplex_cmd, shell=True)
+
+    except Exception as ex:
+        error_descr = "Issue getting Ethernet duplex information"
+        duplexerror= [ "Err: ethtool command error" ]
+        display_simple_table(duplexerror, back_button_req=1)
+        return
+
+    if len(duplex_info) == 0:
+        eth0_ipconfig_info.append("N/A")
+
+    eth0_ipconfig_info.append(duplex_info)
+
+    # final chop down of the string to fit the display
+    for n in eth0_ipconfig_info:
+        n = n[0:19]
+
+    # final check no-one pressed a button before we render page
+    if display_state == 'menu':
+        retun
+
+    display_simple_table(eth0_ipconfig_info, back_button_req=1, title='--eth0 ipconfig--')
+
+    return
+
+
+def show_dns():
+
+    '''
+    Return DNS servers
+    '''
+    global display_state
+
+    #detect configured DNS servers
+    dns_info = []
+    dns_cmd = "sudo cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f2"
+
+    try:
+        dns_output = subprocess.check_output(dns_cmd, shell=True)
+        dns_info = dns_output.split('\n')
+
+    except Exception as ex:
+        error_descr = "Issue getting DNS information"
+        dnserror= [ "Err: DNS command error" ]
+        display_simple_table(dnserror, back_button_req=1)
+        return
+
+    if len(dns_info) == 0:
+        dns_info.append("No DNS servers")
+
+    # final chop down of the string to fit the display
+    for n in dns_info:
+        n = n[0:19]
+
+    # final check no-one pressed a button before we render page
+    if display_state == 'menu':
+        return
+
+    display_simple_table(dns_info, back_button_req=1, title='--DNS servers--')
+
+    return
+
+
+def show_lldp_neighbour():
+    '''
+    Display LLDP neighbour on eth0
+    '''
+    global display_state
+
+    neighbour_info = []
+    neighbour_cmd = "sudo cat " + lldpneigh_file
+
+    if os.path.exists(lldpneigh_file):
+
+        try:
+            neighbour_output = subprocess.check_output(neighbour_cmd, shell=True)
+            neighbour_info = neighbour_output.split('\n')
+
+        except Exception as ex:
+            error_descr = "Issue getting LLDP neighbour"
+            error= [ "Err: Neighbour command error" ]
+            display_simple_table(error, back_button_req=1)
+            return
+
+    if len(neighbour_info) == 0:
+        neighbour_info.append("No neighbour")
+
+    # chop down output to fit up to 2 lines on display 
+    choppedoutput = []
+
+    for n in neighbour_info:
+        choppedoutput.append(n[0:20])
+        if len(n) > 20:
+            choppedoutput.append(n[20:40])
+
+    # final check no-one pressed a button before we render page
+    if display_state == 'menu':
+        return
+
+    display_simple_table(choppedoutput, back_button_req=1, title='--LLDP neighbour--')
+
+
+def show_cdp_neighbour():
+    '''
+    Display CDP neighbour on eth0
+    '''
+    global display_state
+
+    neighbour_info = []
+    neighbour_cmd = "sudo cat " + cdpneigh_file
+
+    if os.path.exists(cdpneigh_file):
+
+        try:
+            neighbour_output = subprocess.check_output(neighbour_cmd, shell=True)
+            neighbour_info = neighbour_output.split('\n')
+
+        except Exception as ex:
+            error_descr = "Issue getting LLDP neighbour"
+            error= [ "Err: Neighbour command error" ]
+            display_simple_table(error, back_button_req=1)
+            return
+
+    if len(neighbour_info) == 0:
+        neighbour_info.append("No neighbour")
+
+    # chop down output to fit up to 2 lines on display
+    choppedoutput = []
+
+    for n in neighbour_info:
+        choppedoutput.append(n[0:20])
+        if len(n) > 20:
+            choppedoutput.append(n[20:40])
+
+    # final check no-one pressed a button before we render page
+    if display_state == 'menu':
+        return
+
+    display_simple_table(choppedoutput, back_button_req=1, title='--CDP neighbour--')
+
+
+def show_vlan():
+    '''
+    Display untagged VLAN number on eth0
+    Todo: Add tagged VLAN info
+    '''
+
+    global display_state
+
+    vlan_info = []
+
+    vlan_cmd = "sudo grep -a VLAN " + lldpneigh_file
+
+    if os.path.exists(lldpneigh_file):
+
+        try:
+            vlan_output = subprocess.check_output(vlan_cmd, shell=True)
+            vlan_info = vlan_output.split('\n')
+
+        except Exception as ex:
+            error_descr = "Issue getting VLAN info"
+            error= [ "No VLAN found" ]
+            display_simple_table(error, back_button_req=1)
+            return
+
+    if len(vlan_info) == 0:
+        vlan_info.append("No VLAN found")
+
+    # final chop down of the string to fit the display
+    for n in vlan_info:
+        n = n[0:19]
+
+    # final check no-one pressed a button before we render page
+    if display_state == 'menu':
+        return
+
+    display_simple_table(vlan_info, back_button_req=1, title='--VLAN info--')
+
 
 def show_menu_ver():
 
@@ -1318,7 +1578,7 @@ def home_page():
         # get Ethernet port info (...for Jerry)
         try:
             #eth_speed_info  = subprocess.check_output("{} eth0  | grep -i speed | cut -d' ' -f2".format(ethtool_file), shell=True)
-            eth_info = subprocess.check_output('{} eth0'.format(ethtool_file), shell=True)
+            eth_info = subprocess.check_output('{} eth0 2>/dev/null'.format(ethtool_file), shell=True)
             speed_re = re.findall('Speed\: (.*\/s)', eth_info, re.MULTILINE)
             duplex_re = re.findall('Duplex\: (.*)', eth_info, re.MULTILINE)
             link_re = re.findall('Link detected\: (.*)', eth_info, re.MULTILINE)
@@ -1335,6 +1595,12 @@ def home_page():
             
         except Exception as ex:
             # Something went wrong...show nothing
+            mode_name = ""
+        
+        # If eth0 is down, lets show the usb0 IP address
+        # in case anyone uses OTG conection & is confused
+        if mode_name == "Link down":
+            if_name = "usb0"
             mode_name = ""
     
     ip_addr_cmd = "ip addr show {} | grep -Po \'inet \K[\d.]+\'".format(if_name) 
@@ -1481,6 +1747,11 @@ menu = [
             { "name": "2.WLAN Interfaces", "action": show_wlan_interfaces},
             { "name": "3.USB Devices", "action": show_usb},
             { "name": "4.UFW Ports", "action": show_ufw},
+            { "name": "5.eth0 ipconfig", "action": show_eth0_ipconfig},
+            { "name": "6.eth0 VLAN", "action": show_vlan},
+            { "name": "7.LLDP neighbour", "action": show_lldp_neighbour},
+            { "name": "8.CDP neighbour", "action": show_cdp_neighbour},
+            { "name": "9.DNS servers", "action": show_dns},
         ]
       },
       { "name": "2.Status", "action": [
