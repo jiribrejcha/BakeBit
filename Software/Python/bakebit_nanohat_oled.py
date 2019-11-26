@@ -52,6 +52,7 @@ History:
         home page(3rd Aug 2019)
  0.23   Added LLDP & eth0 updates submitted by Jiri Brejcha (15th Sep 2019)
  0.24   Added usb0 as default to disply when eth0 down (16th Nov 2019)
+ 0.25   Added new CDP menu item, new CDP script and updated LLDP features by Jiri Brejcha (26th Nov 2019) 
         
 
 To do:
