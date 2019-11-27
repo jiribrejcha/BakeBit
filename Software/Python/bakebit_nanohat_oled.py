@@ -1605,7 +1605,7 @@ def home_page():
     elif current_mode == "hotspot":
         # get wlan0 IP
         if_name = "wlan0"
-        mode_name = "Hotspot"
+        mode_name = "Hotspot " + wifi_client_count() + " clients"
     
     else:
         # get eth0 IP
@@ -1662,6 +1662,20 @@ def home_page():
 #######################
 # other functions here
 #######################
+
+def wifi_client_count():
+    wccc = "sudo /sbin/iw dev wlan0 station dump | grep 'Station' | wc -l"
+
+    try:
+        client_count = subprocess.check_output(wccc, shell=True)
+
+    except Exception as ex:
+        error_descr = "Issue getting number of  Wi-Fi clients"
+        wccerror= [ "Err: Wi-Fi client count" ]
+        display_simple_table(wccerror, back_button_req=1)
+        return
+
+    return client_count.strip()
 
 def menu_down():
 
