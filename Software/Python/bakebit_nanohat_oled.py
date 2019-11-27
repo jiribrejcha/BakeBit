@@ -1293,6 +1293,39 @@ def show_vlan():
     display_simple_table(vlan_info, back_button_req=1, title='--VLAN info--')
 
 
+def show_wpa_passphrase():
+    '''
+    Show WPA passphrase
+    '''
+    global display_state
+
+    swpc = "sudo grep 'wpa_passphrase' /etc/hostapd.conf | cut -d '=' -f2"
+
+    try:
+        wpa_passphrase = []
+        wpa_passphrase_output = subprocess.check_output(swpc, shell=True)
+        wpa_passphrase.append(wpa_passphrase_output)
+
+    except Exception as ex:
+        error_descr = "Issue getting WPA passphrase"
+        swperror= [ "Err: WPA passphrase" ]
+        display_simple_table(swperror, back_button_req=1)
+        return
+
+    # final check no-one pressed a button before we render page
+    if display_state == 'menu':
+        return
+
+    # chop down output to fit up to 2 lines on display
+    choppedoutput = []
+
+    for n in wpa_passphrase:
+        choppedoutput.append(n[0:20])
+        if len(n) > 20:
+            choppedoutput.append(n[20:40])
+
+    display_simple_table(choppedoutput, back_button_req=1, title='--WPA passphrase--')
+
 def show_menu_ver():
 
     global __version__
@@ -1803,6 +1836,7 @@ menu = [
             { "name": "7.LLDP neighbour", "action": show_lldp_neighbour},
             { "name": "8.CDP neighbour", "action": show_cdp_neighbour},
             { "name": "9.DNS servers", "action": show_dns},
+            { "name": "10.WPA passphrase", "action": show_wpa_passphrase},
         ]
       },
       { "name": "2.Status", "action": [
