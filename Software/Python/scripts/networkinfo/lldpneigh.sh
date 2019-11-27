@@ -1,6 +1,20 @@
 #!/bin/bash
 # Detects LLDP neighbour on eth0 interface
 
+#Check if the script is running as root
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 
+   exit 1
+fi
+
+#Prevent multiple instances of the script to run at the same time
+for pid in $(pidof -x $0); do
+    if [ $pid != $$ ]; then
+        echo "Another instance of the script is already running. Wait for it to finish first."
+        exit 1
+    fi
+done
+
 DIRECTORY="/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo"
 CAPTUREFILE="/tmp/lldpneightcpdump.cap"
 OUTPUTFILE="/tmp/lldpneigh.txt"
@@ -26,19 +40,19 @@ else
 fi
 
 #Be careful this first statement uses tee without -a and overwrites the content of the text file
-systdesc=$(cat "$CAPTUREFILE" | grep -A 1 "System Description" | cut -d$'\n' -f2 | sed -e 's/^[ \t]*//' 2>&1)
-echo -e "$systdesc" 2>&1 | tee "$OUTPUTFILE"
+DEVICEID=$(cat "$CAPTUREFILE" | grep "System Name" | cut -d ' ' -f7)
+echo -e "Name: $DEVICEID" 2>&1 | tee "$OUTPUTFILE"
 
-systname=$(cat "$CAPTUREFILE" | grep "System Name" | cut -d ' ' -f7 2>&1)
-echo -e "$systname" 2>&1 | tee -a "$OUTPUTFILE"
+PLATFORM=$(cat "$CAPTUREFILE" | grep -A 1 "System Description" | cut -d$'\n' -f2 | sed -e 's/^[ \t]*//')
+echo -e "Model: $PLATFORM" 2>&1 | tee -a "$OUTPUTFILE"
 
-neighbouraddress=$(sudo cat "$CAPTUREFILE" | grep "Management Address" | cut -d ' ' -f 10 | cut -d$'\n' -f2)
-echo -e "IP: $neighbouraddress" 2>&1 | tee -a "$OUTPUTFILE"
+ADDRESS=$(sudo cat "$CAPTUREFILE" | grep "Management Address" | cut -d ' ' -f 10 | cut -d$'\n' -f2)
+echo -e "IP: $ADDRESS" 2>&1 | tee -a "$OUTPUTFILE"
 
-portdesc=$(cat "$CAPTUREFILE" | grep "Port Description" | cut -d ':' -f2 | awk '{$1=$1};1' 2>&1)
-echo -e "P: $portdesc" 2>&1 | tee -a "$OUTPUTFILE"
+PORT=$(cat "$CAPTUREFILE" | grep "Port Description" | cut -d ':' -f2 | awk '{$1=$1};1')
+echo -e "Port: $PORT" 2>&1 | tee -a "$OUTPUTFILE"
 
-portvlan=$(cat "$CAPTUREFILE" | grep -A1 "Port VLAN" | cut -d$'\n' -f2 | cut -d ' ' -f9 | cut -d$'\n' -f1 2>&1)
-echo -e "Access VLAN: $portvlan" 2>&1 | tee -a "$OUTPUTFILE"
+PORTVLAN=$(cat "$CAPTUREFILE" | grep -A1 "Port VLAN" | cut -d$'\n' -f2 | cut -d ' ' -f9 | cut -d$'\n' -f1)
+echo -e "Native VLAN: $PORTVLAN" 2>&1 | tee -a "$OUTPUTFILE"
 
 exit 0

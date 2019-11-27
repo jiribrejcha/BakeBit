@@ -52,6 +52,7 @@ History:
         home page(3rd Aug 2019)
  0.23   Added LLDP & eth0 updates submitted by Jiri Brejcha (15th Sep 2019)
  0.24   Added usb0 as default to disply when eth0 down (16th Nov 2019)
+ 0.25   Added new CDP menu item, new CDP script and updated LLDP features by Jiri Brejcha (26th Nov 2019) 
         
 
 To do:
@@ -75,7 +76,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.24 (beta)"
+__version__ = "0.25 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
@@ -156,8 +157,9 @@ kismet_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/kism
 bettercap_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/bettercap_ctl'
 profiler_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/profiler_ctl'
 
-# lldp data file name
+# cdp and lldp networkinfo data file names
 lldpneigh_file = '/tmp/lldpneigh.txt'
+cdpneigh_file = '/tmp/cdpneigh.txt'
 
 # Linux programs
 ifconfig_file = '/sbin/ifconfig'
@@ -1089,6 +1091,42 @@ def show_eth0_ipconfig():
 
     eth0_ipconfig_info.append(duplex_info)
 
+    #detect eth0 dhcp server name
+    dhcpsrv_info = []
+    dhcpsrv_cmd = "grep \"server-name\" /var/lib/dhcp/dhclient.eth0.leases | tail -1 | cut -d '\"' -f2"
+
+    try:
+        dhcpsrv_info = "DHCPs: " + subprocess.check_output(dhcpsrv_cmd, shell=True)
+
+    except Exception as ex:
+        error_descr = "Issue getting eth0 DHCP server"
+        dhcpsrverror= [ "Err: DHCP server command error" ]
+        display_simple_table(dhcpsrverror, back_button_req=1)
+        return
+
+    if len(dhcpsrv_info) == 0:
+        eth0_ipconfig_info.append("N/A")
+
+    eth0_ipconfig_info.append(dhcpsrv_info)
+
+    #detect eth0 dhcp server IP address
+    dhcpsrvip_info = []
+    dhcpsrvip_cmd = "grep \"option dhcp-server-identifier\" /var/lib/dhcp/dhclient.eth0.leases | tail -1 | tail -1 | grep -E -o \"([0-9]{1,3}[\.]){3}[0-9]{1,3}\""
+
+    try:
+        dhcpsrvip_info = "DHCPs: " + subprocess.check_output(dhcpsrvip_cmd, shell=True)
+
+    except Exception as ex:
+        error_descr = "Issue getting DHCP server IP address"
+        dhcpsrviperror= [ "Err: DHCP server IP address error" ]
+        display_simple_table(dhcpsrviperror, back_button_req=1)
+        return
+
+    if len(dhcpsrvip_info) == 0:
+        eth0_ipconfig_info.append("N/A")
+
+    eth0_ipconfig_info.append(dhcpsrvip_info)
+
     # final chop down of the string to fit the display
     for n in eth0_ipconfig_info:
         n = n[0:19]
@@ -1178,6 +1216,45 @@ def show_lldp_neighbour():
     display_simple_table(choppedoutput, back_button_req=1, title='--LLDP neighbour--')
 
 
+def show_cdp_neighbour():
+    '''
+    Display CDP neighbour on eth0
+    '''
+    global display_state
+
+    neighbour_info = []
+    neighbour_cmd = "sudo cat " + cdpneigh_file
+
+    if os.path.exists(cdpneigh_file):
+
+        try:
+            neighbour_output = subprocess.check_output(neighbour_cmd, shell=True)
+            neighbour_info = neighbour_output.split('\n')
+
+        except Exception as ex:
+            error_descr = "Issue getting LLDP neighbour"
+            error= [ "Err: Neighbour command error" ]
+            display_simple_table(error, back_button_req=1)
+            return
+
+    if len(neighbour_info) == 0:
+        neighbour_info.append("No neighbour")
+
+    # chop down output to fit up to 2 lines on display
+    choppedoutput = []
+
+    for n in neighbour_info:
+        choppedoutput.append(n[0:20])
+        if len(n) > 20:
+            choppedoutput.append(n[20:40])
+
+    # final check no-one pressed a button before we render page
+    if display_state == 'menu':
+        return
+
+    display_simple_table(choppedoutput, back_button_req=1, title='--CDP neighbour--')
+
+
 def show_vlan():
     '''
     Display untagged VLAN number on eth0
@@ -1215,6 +1292,39 @@ def show_vlan():
 
     display_simple_table(vlan_info, back_button_req=1, title='--VLAN info--')
 
+
+def show_wpa_passphrase():
+    '''
+    Show WPA passphrase
+    '''
+    global display_state
+
+    swpc = "sudo grep 'wpa_passphrase' /etc/hostapd.conf | cut -d '=' -f2"
+
+    try:
+        wpa_passphrase = []
+        wpa_passphrase_output = subprocess.check_output(swpc, shell=True)
+        wpa_passphrase.append(wpa_passphrase_output)
+
+    except Exception as ex:
+        error_descr = "Issue getting WPA passphrase"
+        swperror= [ "Err: WPA passphrase" ]
+        display_simple_table(swperror, back_button_req=1)
+        return
+
+    # final check no-one pressed a button before we render page
+    if display_state == 'menu':
+        return
+
+    # chop down output to fit up to 2 lines on display
+    choppedoutput = []
+
+    for n in wpa_passphrase:
+        choppedoutput.append(n[0:20])
+        if len(n) > 20:
+            choppedoutput.append(n[20:40])
+
+    display_simple_table(choppedoutput, back_button_req=1, title='--WPA passphrase--')
 
 def show_menu_ver():
 
@@ -1528,7 +1638,7 @@ def home_page():
     elif current_mode == "hotspot":
         # get wlan0 IP
         if_name = "wlan0"
-        mode_name = "Hotspot"
+        mode_name = "Hotspot " + wifi_client_count() + " clients"
     
     else:
         # get eth0 IP
@@ -1585,6 +1695,20 @@ def home_page():
 #######################
 # other functions here
 #######################
+
+def wifi_client_count():
+    wccc = "sudo /sbin/iw dev wlan0 station dump | grep 'Station' | wc -l"
+
+    try:
+        client_count = subprocess.check_output(wccc, shell=True)
+
+    except Exception as ex:
+        error_descr = "Issue getting number of  Wi-Fi clients"
+        wccerror= [ "Err: Wi-Fi client count" ]
+        display_simple_table(wccerror, back_button_req=1)
+        return
+
+    return client_count.strip()
 
 def menu_down():
 
@@ -1708,9 +1832,11 @@ menu = [
             { "name": "3.USB Devices", "action": show_usb},
             { "name": "4.UFW Ports", "action": show_ufw},
             { "name": "5.eth0 ipconfig", "action": show_eth0_ipconfig},
-            { "name": "6.eth0 VLAN tag", "action": show_vlan},
+            { "name": "6.eth0 VLAN", "action": show_vlan},
             { "name": "7.LLDP neighbour", "action": show_lldp_neighbour},
-            { "name": "8.DNS servers", "action": show_dns},
+            { "name": "8.CDP neighbour", "action": show_cdp_neighbour},
+            { "name": "9.DNS servers", "action": show_dns},
+            { "name": "10.WPA passphrase", "action": show_wpa_passphrase},
         ]
       },
       { "name": "2.Status", "action": [
