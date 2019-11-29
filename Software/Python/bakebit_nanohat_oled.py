@@ -160,6 +160,7 @@ profiler_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/pr
 # cdp and lldp networkinfo data file names
 lldpneigh_file = '/tmp/lldpneigh.txt'
 cdpneigh_file = '/tmp/cdpneigh.txt'
+ipconfig_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/ipconfig.sh 2>/dev/null'
 
 # Linux programs
 ifconfig_file = '/sbin/ifconfig'
@@ -1019,163 +1020,37 @@ def show_eth0_ipconfig():
 
     eth0_ipconfig_info = []
 
-    #detect IP address of eth0 interface
-    ipa_info = []
-    ipa = "ip a | gawk --re-interval '/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/{print $0}' | grep eth0 | cut -d ' ' -f 6"
-
     try:
-        ipa_info = subprocess.check_output(ipa, shell=True)
+        ipconfig_output = subprocess.check_output(ipconfig_file, shell=True)
+        ipconfig_info = ipconfig_output.split('\n')
 
     except Exception as ex:
-        error_descr = "Issue getting IP address using ip a command"
-        ipaerror= [ "Err: ip a error" ]
-        display_simple_table(ipaerror, back_button_req=1)
-        return
-   
-    if len(ipa_info) == 0:
-        eth0_ipconfig_info.append("No IP address")
-    else:
-        eth0_ipconfig_info.append(ipa_info)
-
-    #detect default gateway for eth0
-    dg_info = []
-    dg_cmd = "/sbin/route -n | grep G | grep eth0 | cut -d ' ' -f 10"
-
-    try:
-        dg_info = "DG: " + subprocess.check_output(dg_cmd, shell=True)
-
-    except Exception as ex:
-        error_descr = "Issue getting default gateway using route command"
-        dgerror= [ "Err: route command error" ]
-        display_simple_table(dgerror, back_button_req=1)
+        error_descr = "Issue getting ipconfig"
+        ipconfigerror= [ "Err: ipconfig command error" ]
+        display_simple_table(ipconfigerror, back_button_req=1)
         return
 
-    if len(dg_info) == 0:
-        eth0_ipconfig_info.append("No default gateway")
+    if len(ipconfig_info) == 0:
+        eth0_ipconfig_info.append("Nothing to display")
 
-    eth0_ipconfig_info.append(dg_info)
+    for n in ipconfig_info:
+        eth0_ipconfig_info.append(n)
 
-   #detect speed on eth0 interface
-    speed_info = []
-    speed_cmd = "sudo ethtool eth0 | grep -q \"Link detected: yes\" && sudo ethtool eth0 | grep \"Speed\" | cut -d ' ' -f 2 | sed 's/....$//' || echo \"Disconnected\""
+    # chop down output to fit up to 2 lines on display
+    choppedoutput = []
 
-    try:
-        speed_info = "Speed: " + subprocess.check_output(speed_cmd, shell=True)
-
-    except Exception as ex:
-        error_descr = "Issue getting Ethernet speed information"
-        speederror= [ "Err: ethtool command error" ]
-        display_simple_table(speederror, back_button_req=1)
-        return
-
-    if len(speed_info) == 0:
-        eth0_ipconfig_info.append("N/A")
-
-    eth0_ipconfig_info.append(speed_info)
-
-    #detect duplex on eth0 interface
-    duplex_info = []
-    duplex_cmd = "sudo ethtool eth0 | grep -q \"Link detected: yes\" && sudo ethtool eth0 | grep \"Duplex\" | cut -d ' ' -f 2 || echo \"Disconnected\""
-
-    try:
-        duplex_info = "Duplex: " + subprocess.check_output(duplex_cmd, shell=True)
-
-    except Exception as ex:
-        error_descr = "Issue getting Ethernet duplex information"
-        duplexerror= [ "Err: ethtool command error" ]
-        display_simple_table(duplexerror, back_button_req=1)
-        return
-
-    if len(duplex_info) == 0:
-        eth0_ipconfig_info.append("N/A")
-
-    eth0_ipconfig_info.append(duplex_info)
-
-    #detect eth0 dhcp server name
-    dhcpsrv_info = []
-    dhcpsrv_cmd = "grep \"server-name\" /var/lib/dhcp/dhclient.eth0.leases | tail -1 | cut -d '\"' -f2"
-
-    try:
-        dhcpsrv_info = "DHCPs: " + subprocess.check_output(dhcpsrv_cmd, shell=True)
-
-    except Exception as ex:
-        error_descr = "Issue getting eth0 DHCP server"
-        dhcpsrverror= [ "Err: DHCP server command error" ]
-        display_simple_table(dhcpsrverror, back_button_req=1)
-        return
-
-    if len(dhcpsrv_info) == 0:
-        eth0_ipconfig_info.append("N/A")
-
-    eth0_ipconfig_info.append(dhcpsrv_info)
-
-    #detect eth0 dhcp server IP address
-    dhcpsrvip_info = []
-    dhcpsrvip_cmd = "grep \"option dhcp-server-identifier\" /var/lib/dhcp/dhclient.eth0.leases | tail -1 | tail -1 | grep -E -o \"([0-9]{1,3}[\.]){3}[0-9]{1,3}\""
-
-    try:
-        dhcpsrvip_info = "DHCPs: " + subprocess.check_output(dhcpsrvip_cmd, shell=True)
-
-    except Exception as ex:
-        error_descr = "Issue getting DHCP server IP address"
-        dhcpsrviperror= [ "Err: DHCP server IP address error" ]
-        display_simple_table(dhcpsrviperror, back_button_req=1)
-        return
-
-    if len(dhcpsrvip_info) == 0:
-        eth0_ipconfig_info.append("N/A")
-
-    eth0_ipconfig_info.append(dhcpsrvip_info)
-
-    # final chop down of the string to fit the display
     for n in eth0_ipconfig_info:
-        n = n[0:19]
-
-    # final check no-one pressed a button before we render page
-    if display_state == 'menu':
-        retun
-
-    display_simple_table(eth0_ipconfig_info, back_button_req=1, title='--eth0 ipconfig--')
-
-    return
-
-
-def show_dns():
-
-    '''
-    Return DNS servers
-    '''
-    global display_state
-
-    #detect configured DNS servers
-    dns_info = []
-    dns_cmd = "sudo cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f2"
-
-    try:
-        dns_output = subprocess.check_output(dns_cmd, shell=True)
-        dns_info = dns_output.split('\n')
-
-    except Exception as ex:
-        error_descr = "Issue getting DNS information"
-        dnserror= [ "Err: DNS command error" ]
-        display_simple_table(dnserror, back_button_req=1)
-        return
-
-    if len(dns_info) == 0:
-        dns_info.append("No DNS servers")
-
-    # final chop down of the string to fit the display
-    for n in dns_info:
-        n = n[0:19]
+        choppedoutput.append(n[0:20])
+        if len(n) > 20:
+            choppedoutput.append(n[20:40])
 
     # final check no-one pressed a button before we render page
     if display_state == 'menu':
         return
 
-    display_simple_table(dns_info, back_button_req=1, title='--DNS servers--')
+    display_simple_table(choppedoutput, back_button_req=1, title='--eth0 ipconfig--')
 
     return
-
 
 def show_lldp_neighbour():
     '''
@@ -1835,8 +1710,7 @@ menu = [
             { "name": "6.eth0 VLAN", "action": show_vlan},
             { "name": "7.LLDP neighbour", "action": show_lldp_neighbour},
             { "name": "8.CDP neighbour", "action": show_cdp_neighbour},
-            { "name": "9.DNS servers", "action": show_dns},
-            { "name": "10.WPA passphrase", "action": show_wpa_passphrase},
+            { "name": "9.WPA passphrase", "action": show_wpa_passphrase},
         ]
       },
       { "name": "2.Status", "action": [
