@@ -53,6 +53,7 @@ History:
  0.23   Added LLDP & eth0 updates submitted by Jiri Brejcha (15th Sep 2019)
  0.24   Added usb0 as default to disply when eth0 down (16th Nov 2019)
  0.25   Added new CDP menu item, new CDP script and updated LLDP features by Jiri Brejcha (26th Nov 2019) 
+ 0.26   DNS servers are now shown in ipconfig menu, DHCP server info is now shown correctly and only if eth0 is up, cleaned up networkinfo code in bakebit menu file by Jiri (29th Nov 2019)
         
 
 To do:
@@ -76,7 +77,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.25 (beta)"
+__version__ = "0.26 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
