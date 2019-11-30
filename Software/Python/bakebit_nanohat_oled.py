@@ -53,6 +53,8 @@ History:
  0.23   Added LLDP & eth0 updates submitted by Jiri Brejcha (15th Sep 2019)
  0.24   Added usb0 as default to disply when eth0 down (16th Nov 2019)
  0.25   Added new CDP menu item, new CDP script and updated LLDP features by Jiri Brejcha (26th Nov 2019) 
+ 0.26   DNS servers are now shown in ipconfig menu, DHCP server info is now shown correctly and only if eth0 is up, cleaned up networkinfo code in bakebit menu file by Jiri (29th Nov 2019)
+
         
 
 To do:
@@ -76,7 +78,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.25 (beta)"
+__version__ = "0.26 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
@@ -160,6 +162,7 @@ profiler_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/pr
 # cdp and lldp networkinfo data file names
 lldpneigh_file = '/tmp/lldpneigh.txt'
 cdpneigh_file = '/tmp/cdpneigh.txt'
+ipconfig_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/ipconfig.sh 2>/dev/null'
 
 # Linux programs
 ifconfig_file = '/sbin/ifconfig'
@@ -1175,7 +1178,6 @@ def show_dns():
     display_simple_table(dns_info, back_button_req=1, title='--DNS servers--')
 
     return
-
 
 def show_lldp_neighbour():
     '''
