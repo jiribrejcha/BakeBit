@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#Displays IP address, subnet mask, default gateway, DNS servers, speed, duplex, DHCP server IP address and name 
 ACTIVEIP=$(ip a | grep "eth0" | grep "inet" | cut -d '/' -f1 | cut -d ' ' -f6)
 SUBNET=$(ip a | grep "eth0" | grep "inet" | cut -d ' ' -f6 | tail -c 4)
 LEASEDIP=$(grep "fixed-address" /var/lib/dhcp/dhclient.eth0.leases | tail -1 | cut -d ' ' -f4 | cut -d ';' -f1)
