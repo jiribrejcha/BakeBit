@@ -1141,7 +1141,7 @@ def show_vlan():
 
     vlan_info = []
 
-    vlan_cmd = "sudo grep -a VLAN " + lldpneigh_file
+    vlan_cmd = "sudo grep -a VLAN " + lldpneigh_file + " || grep -a VLAN " + cdpneigh_file
 
     if os.path.exists(lldpneigh_file):
 
@@ -1166,7 +1166,7 @@ def show_vlan():
     if display_state == 'menu':
         return
 
-    display_simple_table(vlan_info, back_button_req=1, title='--VLAN info--')
+    display_simple_table(vlan_info, back_button_req=1, title='--eth0 VLAN--')
 
 
 def show_wpa_passphrase():

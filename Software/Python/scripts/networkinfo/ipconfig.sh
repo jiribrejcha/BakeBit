@@ -43,5 +43,5 @@ if [ "$ETH0ISUP" ]; then
     echo "Duplex: $DUPLEX"
 
 else
-    echo "Disconnected"
+    echo "eth0 is down"
 fi
