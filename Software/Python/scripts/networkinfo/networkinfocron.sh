@@ -9,15 +9,22 @@ do
   case "$line" in
   *"device (eth0): link connected"*)
     logger "networkinfo script: eth0 went up"
-    sudo /sbin/dhclient eth0 &
+    #Request a new address from DHCP server
+    sudo /sbin/dhclient eth0
+    #Execute neighbour detection scripts
     sudo "$DIRECTORY"/lldpneigh.sh &
     sudo "$DIRECTORY"/cdpneigh.sh &
   ;;
   *"eth0: Link is Down"*)
-    sudo /sbin/dhclient -r eth0 &
     logger "networkinfo script: eth0 went down"
-    sudo "$DIRECTORY"/lldpcleanup.sh &
-    sudo "$DIRECTORY"/cdpcleanup.sh &
+    #Execute cleanup scripts
+    sudo "$DIRECTORY"/lldpcleanup.sh
+    sudo "$DIRECTORY"/cdpcleanup.sh
+    #Kill any running instances of the CDP and LLDP scripts
+    pgrep cdpneigh.sh | xargs sudo pkill -P 2>/dev/null
+    pgrep lldpneigh.sh | xargs sudo pkill -P 2>/dev/null
+    #Release dynamically assigned IP address by DHCP server
+    sudo /sbin/dhclient -r eth0
   ;;
   *)
   esac
