@@ -10,7 +10,9 @@ do
   *"device (eth0): link connected"*)
     logger "networkinfo script: eth0 went up"
     #Request a new address from DHCP server
+    sleep 1
     sudo /sbin/dhclient eth0
+    sleep 1
     #Execute neighbour detection scripts
     sudo "$DIRECTORY"/lldpneigh.sh &
     sudo "$DIRECTORY"/cdpneigh.sh &
