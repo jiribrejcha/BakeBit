@@ -9,10 +9,6 @@ do
   case "$line" in
   *"device (eth0): link connected"*)
     logger "networkinfo script: eth0 went up"
-    #Request a new address from DHCP server
-    sleep 1
-    sudo /sbin/dhclient eth0
-    sleep 1
     #Execute neighbour detection scripts
     sudo "$DIRECTORY"/lldpneigh.sh &
     sudo "$DIRECTORY"/cdpneigh.sh &
@@ -25,8 +21,6 @@ do
     #Kill any running instances of the CDP and LLDP scripts
     pgrep cdpneigh.sh | xargs sudo pkill -P 2>/dev/null
     pgrep lldpneigh.sh | xargs sudo pkill -P 2>/dev/null
-    #Release dynamically assigned IP address by DHCP server
-    sudo /sbin/dhclient -r eth0
   ;;
   *)
   esac
