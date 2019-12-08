@@ -46,13 +46,23 @@ echo -e "Name: $DEVICEID" 2>&1 | tee "$OUTPUTFILE"
 PLATFORM=$(cat "$CAPTUREFILE" | grep "Platform" | cut -d "'" -f2)
 echo -e "Model: $PLATFORM" 2>&1 | tee -a "$OUTPUTFILE"
 
+#UBNT devices send <reverse-ip-address>.in-addr.arpa in their CDP messages
+ISREVERSEADDRESS=$(grep "in-addr.arpa" "$CAPTUREFILE")
 ADDRESS=$(sudo cat "$CAPTUREFILE" | grep "Address " | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}")
-echo -e "IP: $ADDRESS" 2>&1 | tee -a "$OUTPUTFILE"
+if [ "$ISREVERSEADDRESS" ]; then
+    ADDRESS=$(echo "$ADDRESS" | awk -F. '{OFS=FS;print $4,$3,$2,$1}')
+fi
+if [ "$ADDRESS" ]; then
+    echo -e "IP: $ADDRESS" 2>&1 | tee -a "$OUTPUTFILE"
+fi
 
 PORT=$(cat "$CAPTUREFILE" | grep "Port-ID" | cut -d "'" -f2)
-echo -e "Port: $PORT" 2>&1 | tee -a "$OUTPUTFILE"
+if [ "$PORT" ]; then
+    echo -e "Port: $PORT" 2>&1 | tee -a "$OUTPUTFILE"
+fi
 
 NATIVEVLAN=$(cat "$CAPTUREFILE" | grep "Native VLAN ID" | cut -d ':' -f3)
-echo -e "Native VLAN:$NATIVEVLAN" 2>&1 | tee -a "$OUTPUTFILE"
-
+if [ "$NATIVEVLAN" ]; then
+    echo -e "Native VLAN:$NATIVEVLAN" 2>&1 | tee -a "$OUTPUTFILE"
+fi
 exit 0
