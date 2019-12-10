@@ -54,7 +54,7 @@ History:
  0.24   Added usb0 as default to disply when eth0 down (16th Nov 2019)
  0.25   Added new CDP menu item, new CDP script and updated LLDP features by Jiri Brejcha (26th Nov 2019) 
  0.26   DNS servers are now shown in ipconfig menu, DHCP server info is now shown correctly and only if eth0 is up, cleaned up networkinfo code in bakebit menu file by Jiri (29th Nov 2019)
-        
+ 0.27   Added Wiperf support (10th Dec 2019 - Nigel)       
 
 To do:
     1. Error handling to log?
@@ -77,7 +77,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.26 (beta)"
+__version__ = "0.27 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
@@ -150,8 +150,11 @@ start_up = True               # True if in initial (home page) start-up state
 # Mode changer scripts
 wconsole_mode_file = '/etc/wconsole/wconsole.on'
 hotspot_mode_file = '/etc/wlanpihotspot/hotspot.on'
+wiperf_mode_file = '/home/wlanpi/wiperf/wiperf.on'
+
 wconsole_switcher_file = '/etc/wconsole/wconsole_switcher'
 hotspot_switcher_file = '/etc/wlanpihotspot/hotspot_switcher'
+wiperf_switcher_file = '/home/wlanpi/wiperf/wiperf_switcher'
 
 # helper scripts to launch misc processes
 kismet_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/kismet_ctl'
@@ -175,6 +178,8 @@ if os.path.isfile(wconsole_mode_file):
     current_mode = 'wconsole'
 if os.path.isfile(hotspot_mode_file):
     current_mode = 'hotspot'
+if os.path.isfile(wiperf_mode_file):
+    current_mode = 'wiperf'
     
 
 # get & the current version of WLANPi image
@@ -1319,6 +1324,17 @@ def hotspot_switcher():
     switcher(resource_title, resource_switcher_file, mode_name)
     return True
 
+def wiperf_switcher():
+
+    global wiperf_switcher_file
+  
+    resource_title = "Wiperf"
+    mode_name = "wiperf"
+    resource_switcher_file = wiperf_switcher_file
+    
+    switcher(resource_title, resource_switcher_file, mode_name)
+    return True
+
 def kismet_ctl(action="status"):
     '''
     Function to start/stop and get status of Kismet processes
@@ -1515,6 +1531,11 @@ def home_page():
         # get wlan0 IP
         if_name = "wlan0"
         mode_name = "Hotspot " + wifi_client_count() + " clients"
+    
+    elif current_mode == "wiperf":
+        # get wlan0 IP
+        if_name = "wlan0"
+        mode_name = "Wiperf"
     
     else:
         # get eth0 IP
@@ -1754,12 +1775,17 @@ menu = [
                 { "name": "Confirm", "action": hotspot_switcher},
                 ]
             },
-            { "name": "3.Reboot",   "action": [
+            { "name": "3.Wiperf",   "action": [
+                { "name": "Cancel", "action": go_up},
+                { "name": "Confirm", "action": wiperf_switcher},
+                ]
+            },
+            { "name": "4.Reboot",   "action": [
                 { "name": "Cancel", "action": go_up},
                 { "name": "Confirm", "action": reboot},
                 ]
             },
-            { "name": "4.Shutdown", "action": [
+            { "name": "5.Shutdown", "action": [
                 { "name": "Cancel", "action": go_up},
                 { "name": "Confirm", "action": shutdown},
                 ]
@@ -1776,6 +1802,10 @@ if current_mode == "wconsole":
 if current_mode == "hotspot":
     switcher_dispatcher = hotspot_switcher
     home_page_name = "Hotspot"
+
+if current_mode == "wiperf":
+    switcher_dispatcher = wiperf_switcher
+    home_page_name = "Wiperf"
 
 if current_mode != "classic":
     menu[2] = { "name": "3.Actions", "action": [
