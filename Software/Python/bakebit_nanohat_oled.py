@@ -165,6 +165,7 @@ profiler_ctl_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/pr
 lldpneigh_file = '/tmp/lldpneigh.txt'
 cdpneigh_file = '/tmp/cdpneigh.txt'
 ipconfig_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/ipconfig.sh 2>/dev/null'
+reachability_file = '/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo/reachability.sh'
 
 # Linux programs
 ifconfig_file = '/sbin/ifconfig'
@@ -1136,6 +1137,43 @@ def show_cdp_neighbour():
     display_simple_table(choppedoutput, back_button_req=1, title='--CDP neighbour--')
 
 
+def show_reachability():
+    '''
+    Check if default gateway, internet and DNS are reachable and working
+    '''
+    global display_state
+
+    reachability_info = []
+    reachability_cmd = "sudo " + reachability_file
+
+    try:
+        reachability_output = subprocess.check_output(reachability_cmd, shell=True)
+        reachability_info = reachability_output.split('\n')
+
+    except Exception as ex:
+        error_descr = "Issue getting reachability info"
+        error= [ "Err: Reachability command error" ]
+        display_simple_table(error, back_button_req=1)
+        return
+
+    if len(reachability_info) == 0:
+        reachability_info.append("No output sorry")
+
+    # chop down output to fit up to 2 lines on display
+    choppedoutput = []
+
+    for n in reachability_info:
+        choppedoutput.append(n[0:20])
+        if len(n) > 20:
+            choppedoutput.append(n[20:40])
+
+    # final check no-one pressed a button before we render page
+    if display_state == 'menu':
+        return
+
+    display_simple_table(choppedoutput, back_button_req=1, title='--Reachability--')
+
+
 def show_vlan():
     '''
     Display untagged VLAN number on eth0
@@ -1733,6 +1771,7 @@ menu = [
             { "name": "7.LLDP neighbour", "action": show_lldp_neighbour},
             { "name": "8.CDP neighbour", "action": show_cdp_neighbour},
             { "name": "9.WPA passphrase", "action": show_wpa_passphrase},
+            { "name": "10.Reachability", "action": show_reachability},
         ]
       },
       { "name": "2.Status", "action": [
