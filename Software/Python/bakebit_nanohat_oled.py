@@ -1280,20 +1280,22 @@ def switcher(resource_title, resource_switcher_file, mode_name):
         return False
     
     # Flip the mode    
+    
+    display_dialog_msg(dialog_msg, back_button_req)
+    shutdown_in_progress = True
+    time.sleep(2)
+    oled.clearDisplay()
+    screen_cleared = True
+    
     try:
-        display_dialog_msg(dialog_msg, back_button_req)
-        shutdown_in_progress = True
-        time.sleep(2)
-        oled.clearDisplay()
-        screen_cleared = True
-
-        subprocess.call("{} {}".format(resource_switcher_file, switch), shell=True) # reboots
+        dialog_msg = subprocess.check_output("{} {}".format(resource_switcher_file, switch), shell=True) # reboots
     except Exception as ex:
-        dialog_msg = 'Switch failed! {}'.format(ex)
-        back_button_req=1
+        dialog_msg = 'Switch failed!'
     
     # We only get to this point if the switch has failed for some reason
     # (Note that the switcher script reboots the WLANPi)
+    shutdown_in_progress = False
+    back_button_req=1
     display_dialog_msg(dialog_msg, back_button_req)
 
     time.sleep(1)
