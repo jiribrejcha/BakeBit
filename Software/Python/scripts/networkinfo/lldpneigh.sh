@@ -40,19 +40,32 @@ else
 fi
 
 #Be careful this first statement uses tee without -a and overwrites the content of the text file
-DEVICEID=$(cat "$CAPTUREFILE" | grep "System Name" | cut -d ' ' -f7)
-echo -e "Name: $DEVICEID" 2>&1 | tee "$OUTPUTFILE"
+DEVICEID=$(grep "System Name" "$CAPTUREFILE" | cut -d ' ' -f7)
+echo "Name: $DEVICEID" 2>&1 | tee "$OUTPUTFILE"
 
-PLATFORM=$(cat "$CAPTUREFILE" | grep -A 1 "System Description" | cut -d$'\n' -f2 | sed -e 's/^[ \t]*//')
-echo -e "Model: $PLATFORM" 2>&1 | tee -a "$OUTPUTFILE"
+IFNAME=$(grep "Interface Name" "$CAPTUREFILE" | cut -d ':' -f2 | awk '{$1=$1};1')
+if [ "$IFNAME" ]; then
+echo "Port: $IFNAME" 2>&1 | tee -a "$OUTPUTFILE"
+fi
 
-ADDRESS=$(sudo cat "$CAPTUREFILE" | grep "Management Address" | cut -d ' ' -f 10 | cut -d$'\n' -f2)
-echo -e "IP: $ADDRESS" 2>&1 | tee -a "$OUTPUTFILE"
+PORTDESC=$(grep "Port Description" "$CAPTUREFILE" | cut -d ':' -f2 | awk '{$1=$1};1')
+if [ "$PORTDESC" ]; then
+echo "Desc: $PORTDESC" 2>&1 | tee -a "$OUTPUTFILE"
+fi
 
-PORT=$(cat "$CAPTUREFILE" | grep "Port Description" | cut -d ':' -f2 | awk '{$1=$1};1')
-echo -e "Port: $PORT" 2>&1 | tee -a "$OUTPUTFILE"
+ADDRESS=$(grep "Management Address" "$CAPTUREFILE" | cut -d ' ' -f 10 | cut -d$'\n' -f2)
+if [ "$ADDRESS" ]; then
+echo "IP: $ADDRESS" 2>&1 | tee -a "$OUTPUTFILE"
+fi
 
-PORTVLAN=$(cat "$CAPTUREFILE" | grep -A1 "Port VLAN" | cut -d$'\n' -f2 | cut -d ' ' -f9 | cut -d$'\n' -f1)
-echo -e "Native VLAN: $PORTVLAN" 2>&1 | tee -a "$OUTPUTFILE"
+PORTVLAN=$(grep -A1 "Port VLAN" "$CAPTUREFILE" | cut -d$'\n' -f2 | cut -d ' ' -f9 | cut -d$'\n' -f1)
+if [ "$PORTVLAN" ]; then
+echo "Native VLAN: $PORTVLAN" 2>&1 | tee -a "$OUTPUTFILE"
+fi
+
+PLATFORM=$(grep -A 1 "System Description" "$CAPTUREFILE" | cut -d$'\n' -f2 | sed -e 's/^[ \t]*//')
+if [ "$PLATFORM" ]; then
+echo "Model: $PLATFORM" 2>&1 | tee -a "$OUTPUTFILE"
+fi
 
 exit 0
