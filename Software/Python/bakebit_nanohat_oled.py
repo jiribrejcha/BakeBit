@@ -350,32 +350,8 @@ def display_dialog_msg(msg, back_button_req=0, wrap_limit=17, font="medium"):
     global display_state
     
     msg_list = wrap(msg, wrap_limit)
-    display_simple_table(msg_list, back_button_req=1, title='Info:', font=font)
-    '''
-    drawing_in_progress = True
-    
-    # Clear display prior to painting new item
-    clear_display()
-    
-    # set start points for text
-    x=0
-    y=0
-    
-    for msg in msg_list:
-        draw.text((x, y),  msg,  font=fontb14, fill=255)
-        y +=16
-    
-    if back_button_req:
-        back_button()
-    
-    oled.drawImage(image)
-    
-    display_state = 'page'
-    drawing_in_progress = False
-    
-    return True
-    '''
-
+    display_simple_table(msg_list, back_button_req, title='Info:', font=font)
+   
 def display_paged_table(table_data, back_button_req=0):
 
     '''
@@ -1317,8 +1293,7 @@ def switcher(resource_title, resource_switcher_file, mode_name):
         display_state = 'page'
         return False
     
-    # Flip the mode    
-    
+    # Flip the mode
     display_dialog_msg(dialog_msg, back_button_req)
     shutdown_in_progress = True
     time.sleep(2)
@@ -1328,18 +1303,22 @@ def switcher(resource_title, resource_switcher_file, mode_name):
     try:
         dialog_msg = subprocess.check_output("{} {}".format(resource_switcher_file, switch), shell=True) # reboots
     except Exception as ex:
-        dialog_msg = 'Switch failed!'
+        dialog_msg = mode_name
     
     # We only get to this point if the switch has failed for some reason
     # (Note that the switcher script reboots the WLANPi)
     shutdown_in_progress = False
-    back_button_req=1
-    display_dialog_msg(dialog_msg, back_button_req)
+    screen_cleared = False
+    display_dialog_msg("Switch failed: {}".format(dialog_msg), back_button_req=0)
+    display_state = 'menu'
 
-    time.sleep(1)
+    # allow 5 secs to view failure msg
+    time.sleep(3)
+    # move back up to menu branch
+    global current_menu_location
+    current_menu_location.pop()
     
-    display_state = 'page'
-    return True
+    return False
 
 def wconsole_switcher():
 
@@ -1548,6 +1527,23 @@ def profiler_purge():
     profiler_ctl(action="purge")
     return
 
+def check_wiperf_status():
+
+    status_file = '/tmp/wiperf_status.txt'
+    if os.path.exists(status_file):
+        try:
+            statusf = open(status_file, 'r')
+            msg = statusf.readline()
+        except:
+            # not much we can do, fail silently
+            return ''
+
+        # return extracted line
+        return " ({})".format(msg)
+    else:
+        return ''
+
+
 def home_page():
 
     global draw
@@ -1575,7 +1571,7 @@ def home_page():
     elif current_mode == "wiperf":
         # get wlan0 IP
         if_name = "wlan0"
-        mode_name = "Wiperf"
+        mode_name = "Wiperf" + check_wiperf_status()
     
     else:
         # get eth0 IP
