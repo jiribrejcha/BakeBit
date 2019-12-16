@@ -1,0 +1,24 @@
+Both eth0 & wlan0 on same network
+
+sudo ip route add 192.168.0.36 via 192.168.0.1 dev eth0
+sudo ip route add 0.0.0.0 via 192.168.0.1 dev wlan0
+sudo ip route del default dev eth0
+
+#Jiri: added these 3 lines using nano editor directly on WLAN Pi
+#
+# 
+
+#Jiri: then I copied the 3 sudo lines from above from Pi and pasted to my Atom editor on Mac, edited using Atom and pasted back to WLAN Pi nano editor and saved using nano
+sudo ip route add 192.168.0.36 via 192.168.0.1 dev eth0
+Jiri: additional line added in Atom on Mac
+sudo ip route add 0.0.0.0 via 192.168.0.1 dev wlan0
+
+Jiri: extra free line above and below added in Atom on Mac
+
+sudo ip route del default dev eth0 
+
+
+#Jiri: Copied the below lines from web browser and pasted via SSH to Pi and saved in nano on Pi
+grep -- 'foo
+bar' *.txt
+
