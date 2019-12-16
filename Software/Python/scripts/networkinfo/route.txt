@@ -25,5 +25,5 @@ bar' *.txt
 #Jiri added after applying https://help.github.com/en/github/using-git/configuring-git-to-handle-line-endings
 here we go
 and one more new line
-
+and one last one
 
