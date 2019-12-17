@@ -1607,7 +1607,7 @@ def home_page():
             if_name = "usb0"
             mode_name = ""
     
-    ip_addr_cmd = "ip addr show {} | grep -Po \'inet \K[\d.]+\'".format(if_name) 
+    ip_addr_cmd = "ip addr show {}  2>/dev/null | grep -Po \'inet \K[\d.]+\'".format(if_name) 
 
     try:
         ip_addr = subprocess.check_output(ip_addr_cmd, shell=True)
