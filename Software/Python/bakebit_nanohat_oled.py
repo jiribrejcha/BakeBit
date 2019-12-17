@@ -54,7 +54,8 @@ History:
  0.24   Added usb0 as default to disply when eth0 down (16th Nov 2019)
  0.25   Added new CDP menu item, new CDP script and updated LLDP features by Jiri Brejcha (26th Nov 2019) 
  0.26   DNS servers are now shown in ipconfig menu, DHCP server info is now shown correctly and only if eth0 is up, cleaned up networkinfo code in bakebit menu file by Jiri (29th Nov 2019)
- 0.27   Added Wiperf support (10th Dec 2019 - Nigel)       
+ 0.27   Added Wiperf support (10th Dec 2019 - Nigel)   
+ 0.28   Added reachability display - Jiri Brejcha (17th Dec 2019) 
 
 To do:
     1. Error handling to log?
@@ -77,7 +78,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.27 (beta)"
+__version__ = "0.28 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
