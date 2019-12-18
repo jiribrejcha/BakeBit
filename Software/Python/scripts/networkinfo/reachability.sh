@@ -41,8 +41,8 @@ if [ "$DEFAULTGATEWAY" ]; then
         echo "Ping Google:    FAIL"
     fi
 
-    #Check if we can load a web page from internet
-    curl -m 1.5 -s -L google.com | grep "Google Search" &>/dev/null && echo "Browse Google:    OK" || echo "Browse Google:  FAIL"
+    #Check if we can browse to google.com web page
+    curl -m 2 -s -L www.google.com | grep "google.com" &>/dev/null && echo "Browse Google:    OK" || echo "Browse Google:  FAIL"
 
     #Ping default gateway
     PINGDGRTT=$(ping -c1 -W1.5 -q "$DEFAULTGATEWAY" 2>/dev/null)
@@ -70,7 +70,7 @@ if [ "$DEFAULTGATEWAY" ]; then
     fi
 
     #ARPing default gateway - useful if gateway is configured not to respond to pings
-    ARPINGRTT=$(sudo arping -c1 -w1.5 -I "$DGINTERFACE" "$DEFAULTGATEWAY" 2>/dev/null)
+    ARPINGRTT=$(sudo arping -c1 -w1 -I "$DGINTERFACE" "$DEFAULTGATEWAY" 2>/dev/null)
     if [ $? -eq 0 ]; then
         ARPINGRTT=$(echo "$ARPINGRTT" | grep "ms" | cut -d " " -f7 | cut -d "." -f1)
         if [ "$ARPINGRTT" ]; then
