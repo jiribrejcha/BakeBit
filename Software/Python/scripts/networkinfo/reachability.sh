@@ -16,20 +16,16 @@ for pid in $(pidof -x $0); do
 done
 
 DIRECTORY="/home/wlanpi/NanoHatOLED/BakeBit/Software/Python/scripts/networkinfo"
-OUTPUT="/tmp/reachability.txt"
 DEFAULTGATEWAY=$(ip route | grep "default" | cut -d ' ' -f3)
 DGINTERFACE=$(ip route | grep "default" | cut -d ' ' -f5)
 DNSSERVER1=$(sudo cat /etc/resolv.conf | grep "nameserver" -m1 | cut -d ' ' -f2)
 DNSSERVER2=$(sudo cat /etc/resolv.conf | grep "nameserver" | head -2 | tail -1 | cut -d ' ' -f2)
 
-#Clean up the output file
-echo "" > "$OUTPUT"
-
 #Check if Google.com is pingeable
 if [ "$DEFAULTGATEWAY" ]; then
     #Ping Google.com
     #Don't use pipes here or add other commands in between otherwise the if check fails
-    PINGGOOGLERTT=$(ping -c1 -W2 -q google.com 2>/dev/null)
+    PINGGOOGLERTT=$(timeout 1.5 ping -c1 -W1.5 -q google.com 2>/dev/null)
     if [ $? -eq 0 ]; then
         PINGGOOGLERTT=$(echo "$PINGGOOGLERTT" | grep "rtt" | cut -d "." -f2 | cut -d "/" -f2)
         if [ "$PINGGOOGLERTT" ]; then
@@ -46,10 +42,10 @@ if [ "$DEFAULTGATEWAY" ]; then
     fi
 
     #Check if we can load a web page from internet
-    curl -m 2 -s -L google.com | grep "Google Search" &>/dev/null && echo "Browse Google:    OK" || echo "Browse Google:  FAIL"
+    curl -m 1.5 -s -L google.com | grep "Google Search" &>/dev/null && echo "Browse Google:    OK" || echo "Browse Google:  FAIL"
 
     #Ping default gateway
-    PINGDGRTT=$(ping -c1 -W2 -q "$DEFAULTGATEWAY" 2>/dev/null)
+    PINGDGRTT=$(ping -c1 -W1.5 -q "$DEFAULTGATEWAY" 2>/dev/null)
     if [ $? -eq 0 ]; then
         PINGDGRTT=$(echo "$PINGDGRTT" | grep "rtt" | cut -d "." -f2 | cut -d "/" -f2)
         if [ "$PINGDGRTT" ]; then
@@ -74,14 +70,20 @@ if [ "$DEFAULTGATEWAY" ]; then
     fi
 
     #ARPing default gateway - useful if gateway is configured not to respond to pings
-    ARPINGDGRTT=$(sudo arping -c1 -w2 -I "$DGINTERFACE" "$DEFAULTGATEWAY" 2>/dev/null | grep "ms" | cut -d " " -f7 | cut -d "." -f1)"ms"
+    ARPINGRTT=$(sudo arping -c1 -w1.5 -I "$DGINTERFACE" "$DEFAULTGATEWAY" 2>/dev/null)
     if [ $? -eq 0 ]; then
-        ARPINGDGSTRING1="Arping Gateway:"
-        ARPINGDGSPACES=$((20-${#ARPINGDGRTT}-${#ARPINGDGSTRING1}))
-        ARPINGDGSTRING2=$(echo "$ARPINGDGRTT" | sed ':lbl; /^ \{'$ARPINGDGSPACES'\}/! {s/^/ /;b lbl}')
-        echo "${ARPINGDGSTRING1}${ARPINGDGSTRING2}"
+        ARPINGRTT=$(echo "$ARPINGRTT" | grep "ms" | cut -d " " -f7 | cut -d "." -f1)
+        if [ "$ARPINGRTT" ]; then
+            ARPINGRTT="${ARPINGRTT}ms"
+            ARPINGSTRING1="Arping Gateway:"
+            ARPINGSPACES=$((20-${#ARPINGRTT}-${#ARPINGSTRING1}))
+            ARPINGSTRING2=$(echo "$ARPINGRTT" | sed ':lbl; /^ \{'$ARPINGSPACES'\}/! {s/^/ /;b lbl}')
+            echo "${ARPINGSTRING1}${ARPINGSTRING2}"
+        else
+            echo "Arping Gateway: FAIL"
+        fi
     else
-        echo "Arping Gateway:   FAIL"
+        echo "Arping Gateway: FAIL"
     fi
 
 else
