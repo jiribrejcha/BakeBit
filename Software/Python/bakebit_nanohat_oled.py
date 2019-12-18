@@ -56,6 +56,7 @@ History:
  0.26   DNS servers are now shown in ipconfig menu, DHCP server info is now shown correctly and only if eth0 is up, cleaned up networkinfo code in bakebit menu file by Jiri (29th Nov 2019)
  0.27   Added Wiperf support (10th Dec 2019 - Nigel)   
  0.28   Added reachability display - Jiri Brejcha (17th Dec 2019) 
+ 0.29   Re-ordered menu structure & removed menu item numbers (Nigel 18/12/2019)
 
 To do:
     1. Error handling to log?
@@ -78,7 +79,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.28 (beta)"
+__version__ = "0.29 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
@@ -1760,6 +1761,84 @@ def go_up():
 
 # assume classic mode menu initially...
 menu = [
+      { "name": "Network", "action": [
+            { "name": "Interfaces", "action": show_interfaces},
+            { "name": "WLAN Interfaces", "action": show_wlan_interfaces},
+            { "name": "eth0 ipconfig", "action": show_eth0_ipconfig},
+            { "name": "eth0 VLAN", "action": show_vlan},
+            { "name": "LLDP neighbour", "action": show_lldp_neighbour},
+            { "name": "CDP neighbour", "action": show_cdp_neighbour},
+        ]
+      },
+      { "name": "Utils", "action": [
+            { "name": "Reachability", "action": show_reachability},
+            { "name": "WPA passphrase", "action": show_wpa_passphrase},
+            { "name": "USB Devices", "action": show_usb},
+            { "name": "UFW Ports", "action": show_ufw},
+        ]
+      },
+      { "name": "Modes", "action": [
+            { "name": "Wi-Fi Console",   "action": [
+                { "name": "Cancel", "action": go_up},
+                { "name": "Confirm", "action": wconsole_switcher},
+                ]
+            },
+            { "name": "Hotspot",   "action": [
+                { "name": "Cancel", "action": go_up},
+                { "name": "Confirm", "action": hotspot_switcher},
+                ]
+            },
+            { "name": "Wiperf",   "action": [
+                { "name": "Cancel", "action": go_up},
+                { "name": "Confirm", "action": wiperf_switcher},
+                ]
+            },
+        ]
+      },
+      { "name": "Apps", "action": [
+            { "name": "Kismet",   "action": [
+                { "name": "Status", "action": kismet_status},
+                { "name": "Stop", "action":   kismet_stop},
+                { "name": "Start", "action":  kismet_start},
+                ]
+            },
+            { "name": "Bettercap",   "action": [
+                { "name": "Status", "action": bettercap_status},
+                { "name": "Stop", "action":   bettercap_stop},
+                { "name": "Start", "action":  bettercap_start},
+                ]
+            },
+            { "name": "Profiler",   "action": [
+                { "name": "Status", "action":          profiler_status},
+                { "name": "Stop", "action":            profiler_stop},
+                { "name": "Start", "action":           profiler_start},
+                { "name": "Start (no 11r)", "action":  profiler_start_no11r},
+                { "name": "Purge Reports", "action":   profiler_purge},
+                ]
+            },
+        ]
+      },
+      { "name": "System", "action": [
+            { "name": "Shutdown", "action": [
+                { "name": "Cancel", "action": go_up},
+                { "name": "Confirm", "action": shutdown},
+                ]
+            },
+            { "name": "Reboot",   "action": [
+                { "name": "Cancel", "action": go_up},
+                { "name": "Confirm", "action": reboot},
+                ]
+            },
+            { "name": "Summary", "action": show_summary},
+            { "name": "Date/Time", "action": show_date},
+            { "name": "Version", "action": show_menu_ver},
+        ]
+      },
+]
+
+'''
+Old menu structure...just in case
+menu = [
       { "name": "1.Network", "action": [
             { "name": "1.Interfaces", "action": show_interfaces},
             { "name": "2.WLAN Interfaces", "action": show_wlan_interfaces},
@@ -1831,6 +1910,7 @@ menu = [
         ]
       }
 ]
+'''
 
 # update menu options data structure if we're in non-classic mode    
 if current_mode == "wconsole":
@@ -1844,6 +1924,20 @@ if current_mode == "hotspot":
 if current_mode == "wiperf":
     switcher_dispatcher = wiperf_switcher
     home_page_name = "Wiperf"
+
+if current_mode != "classic":
+    menu[2] = { "name": "Mode", "action": [
+                { "name": "Classic Mode",   "action": [
+                    { "name": "Cancel", "action": go_up},
+                    { "name": "Confirm", "action": switcher_dispatcher},
+                    ]
+                },
+            ]
+          }
+    
+    menu.pop(3)
+'''
+Old menu
 
 if current_mode != "classic":
     menu[2] = { "name": "3.Actions", "action": [
@@ -1861,6 +1955,7 @@ if current_mode != "classic":
           }
     
     menu.pop(3)
+'''
 
 # Set up handlers to process key presses
 def receive_signal(signum, stack):
