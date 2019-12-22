@@ -1240,10 +1240,7 @@ def shutdown():
     display_dialog_msg('Shutting down...', back_button_req=0)
     time.sleep(1)
 
-    image1 = Image.open('shutdown.png').convert('1')
-    oled.drawImage(image1)
-
-    #oled.clearDisplay()
+    oled.clearDisplay()
     screen_cleared = True
     
     os.system('systemctl poweroff')
