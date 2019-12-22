@@ -57,6 +57,7 @@ History:
  0.27   Added Wiperf support (10th Dec 2019 - Nigel)   
  0.28   Added reachability display - Jiri Brejcha (17th Dec 2019) 
  0.29   Re-ordered menu structure & removed menu item numbers (Nigel 18/12/2019)
+ 0.30   Added shutdown and reboot dialog images (Nigel 22/12/2019)
 
 To do:
     1. Error handling to log?
