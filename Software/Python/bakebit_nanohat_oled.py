@@ -1239,7 +1239,10 @@ def shutdown():
     display_dialog_msg('Shutting down...', back_button_req=0)
     time.sleep(1)
 
-    oled.clearDisplay()
+    image1 = Image.open('shutdown.png').convert('1')
+    oled.drawImage(image1)
+
+    #oled.clearDisplay()
     screen_cleared = True
     
     os.system('systemctl poweroff')
@@ -1255,7 +1258,10 @@ def reboot():
     display_dialog_msg('Rebooting...', back_button_req=0)
     time.sleep(1)
 
-    oled.clearDisplay()
+    image1 = Image.open('reboot.png').convert('1')
+    oled.drawImage(image1)
+
+    #oled.clearDisplay()
     screen_cleared = True
     
     os.system('systemctl reboot')
@@ -1299,7 +1305,9 @@ def switcher(resource_title, resource_switcher_file, mode_name):
     display_dialog_msg(dialog_msg, back_button_req)
     shutdown_in_progress = True
     time.sleep(2)
-    oled.clearDisplay()
+    #oled.clearDisplay()
+    image1 = Image.open('reboot.png').convert('1')
+    oled.drawImage(image1)
     screen_cleared = True
     
     try:
