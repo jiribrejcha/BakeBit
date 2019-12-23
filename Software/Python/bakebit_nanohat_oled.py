@@ -80,7 +80,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.29 (beta)"
+__version__ = "0.30 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
@@ -118,6 +118,8 @@ drawing_in_progress = False
 #####################################
 image = Image.new('1', (width, height))
 draw = ImageDraw.Draw(image)
+
+reboot_image = Image.open('reboot.png').convert('1')
 
 #######################
 # Define display fonts
@@ -1252,14 +1254,13 @@ def reboot():
     global oled
     global shutdown_in_progress
     global screen_cleared
+    global reboot_image
     
     display_dialog_msg('Rebooting...', back_button_req=0)
     time.sleep(1)
 
-    image1 = Image.open('reboot.png').convert('1')
-    oled.drawImage(image1)
+    oled.drawImage(reboot_image)
 
-    #oled.clearDisplay()
     screen_cleared = True
     
     os.system('systemctl reboot')
@@ -1276,6 +1277,7 @@ def switcher(resource_title, resource_switcher_file, mode_name):
     global screen_cleared
     global current_mode
     global display_state
+    global reboot_image
     
     # check resource is available
     if not os.path.isfile(resource_switcher_file):
@@ -1303,9 +1305,8 @@ def switcher(resource_title, resource_switcher_file, mode_name):
     display_dialog_msg(dialog_msg, back_button_req)
     shutdown_in_progress = True
     time.sleep(2)
-    #oled.clearDisplay()
-    image1 = Image.open('reboot.png').convert('1')
-    oled.drawImage(image1)
+
+    oled.drawImage(reboot_image)
     screen_cleared = True
     
     try:
@@ -2089,8 +2090,8 @@ while True:
         
     except KeyboardInterrupt:
         break
-    except IOError:
-        print ("Error")
+    except IOError as ex:
+        print ("Error " + str(ex))
 
 '''
 Discounted ideas
