@@ -1772,15 +1772,15 @@ menu = [
       { "name": "Network", "action": [
             { "name": "Interfaces", "action": show_interfaces},
             { "name": "WLAN Interfaces", "action": show_wlan_interfaces},
-            { "name": "eth0 ipconfig", "action": show_eth0_ipconfig},
-            { "name": "eth0 VLAN", "action": show_vlan},
-            { "name": "LLDP neighbour", "action": show_lldp_neighbour},
-            { "name": "CDP neighbour", "action": show_cdp_neighbour},
+            { "name": "Eth0 IP Config", "action": show_eth0_ipconfig},
+            { "name": "Eth0 VLAN", "action": show_vlan},
+            { "name": "LLDP Neighbour", "action": show_lldp_neighbour},
+            { "name": "CDP Neighbour", "action": show_cdp_neighbour},
         ]
       },
       { "name": "Utils", "action": [
             { "name": "Reachability", "action": show_reachability},
-            { "name": "WPA passphrase", "action": show_wpa_passphrase},
+            { "name": "WPA Passphrase", "action": show_wpa_passphrase},
             { "name": "USB Devices", "action": show_usb},
             { "name": "UFW Ports", "action": show_ufw},
         ]
