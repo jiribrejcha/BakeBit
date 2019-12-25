@@ -1037,7 +1037,7 @@ def show_eth0_ipconfig():
     if display_state == 'menu':
         return
 
-    display_simple_table(choppedoutput, back_button_req=1, title='--eth0 ipconfig--')
+    display_simple_table(choppedoutput, back_button_req=1, title='--Eth0 IP Config--')
 
     return
 
@@ -1077,7 +1077,7 @@ def show_lldp_neighbour():
     if display_state == 'menu':
         return
 
-    display_simple_table(choppedoutput, back_button_req=1, title='--LLDP neighbour--')
+    display_simple_table(choppedoutput, back_button_req=1, title='--LLDP Neighbour--')
 
 
 def show_cdp_neighbour():
@@ -1116,7 +1116,7 @@ def show_cdp_neighbour():
     if display_state == 'menu':
         return
 
-    display_simple_table(choppedoutput, back_button_req=1, title='--CDP neighbour--')
+    display_simple_table(choppedoutput, back_button_req=1, title='--CDP Neighbour--')
 
 
 def show_reachability():
@@ -1191,7 +1191,7 @@ def show_vlan():
     if display_state == 'menu':
         return
 
-    display_simple_table(vlan_info, back_button_req=1, title='--eth0 VLAN--')
+    display_simple_table(vlan_info, back_button_req=1, title='--Eth0 VLAN--')
 
 
 def show_wpa_passphrase():
@@ -1852,11 +1852,11 @@ menu = [
             { "name": "2.WLAN Interfaces", "action": show_wlan_interfaces},
             { "name": "3.USB Devices", "action": show_usb},
             { "name": "4.UFW Ports", "action": show_ufw},
-            { "name": "5.eth0 ipconfig", "action": show_eth0_ipconfig},
-            { "name": "6.eth0 VLAN", "action": show_vlan},
-            { "name": "7.LLDP neighbour", "action": show_lldp_neighbour},
-            { "name": "8.CDP neighbour", "action": show_cdp_neighbour},
-            { "name": "9.WPA passphrase", "action": show_wpa_passphrase},
+            { "name": "5.Eth0 IP Config", "action": show_eth0_ipconfig},
+            { "name": "6.Eth0 VLAN", "action": show_vlan},
+            { "name": "7.LLDP Neighbour", "action": show_lldp_neighbour},
+            { "name": "8.CDP Neighbour", "action": show_cdp_neighbour},
+            { "name": "9.WPA Passphrase", "action": show_wpa_passphrase},
             { "name": "10.Reachability", "action": show_reachability},
         ]
       },
