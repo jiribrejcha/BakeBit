@@ -59,6 +59,7 @@ History:
  0.29   Re-ordered menu structure & removed menu item numbers (Nigel 18/12/2019)
  0.30   Added shutdown and reboot dialog images (Nigel 22/12/2019)
  0.31   Added main loop error handling improvement and reboot image fix (Nigel 23/12/2019)
+ 0.32   Minor menu updates to network info menu & tests now run when no def gw (Jiri 26/12/2019)
 
 To do:
     1. Error handling to log?
@@ -81,7 +82,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.31 (beta)"
+__version__ = "0.32 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
