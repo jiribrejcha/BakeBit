@@ -58,6 +58,7 @@ History:
  0.28   Added reachability display - Jiri Brejcha (17th Dec 2019) 
  0.29   Re-ordered menu structure & removed menu item numbers (Nigel 18/12/2019)
  0.30   Added shutdown and reboot dialog images (Nigel 22/12/2019)
+ 0.31   Added main loop error handling improvement and reboot image fix (Nigel 23/12/2019)
 
 To do:
     1. Error handling to log?
@@ -80,7 +81,7 @@ import types
 import re
 from textwrap import wrap
 
-__version__ = "0.29 (beta)"
+__version__ = "0.31 (beta)"
 __author__  = "wifinigel@gmail.com"
 
 ############################
@@ -118,6 +119,8 @@ drawing_in_progress = False
 #####################################
 image = Image.new('1', (width, height))
 draw = ImageDraw.Draw(image)
+
+reboot_image = Image.open('reboot.png').convert('1')
 
 #######################
 # Define display fonts
@@ -1034,7 +1037,7 @@ def show_eth0_ipconfig():
     if display_state == 'menu':
         return
 
-    display_simple_table(choppedoutput, back_button_req=1, title='--eth0 ipconfig--')
+    display_simple_table(choppedoutput, back_button_req=1, title='--Eth0 IP Config--')
 
     return
 
@@ -1074,7 +1077,7 @@ def show_lldp_neighbour():
     if display_state == 'menu':
         return
 
-    display_simple_table(choppedoutput, back_button_req=1, title='--LLDP neighbour--')
+    display_simple_table(choppedoutput, back_button_req=1, title='--LLDP Neighbour--')
 
 
 def show_cdp_neighbour():
@@ -1113,7 +1116,7 @@ def show_cdp_neighbour():
     if display_state == 'menu':
         return
 
-    display_simple_table(choppedoutput, back_button_req=1, title='--CDP neighbour--')
+    display_simple_table(choppedoutput, back_button_req=1, title='--CDP Neighbour--')
 
 
 def show_reachability():
@@ -1188,7 +1191,7 @@ def show_vlan():
     if display_state == 'menu':
         return
 
-    display_simple_table(vlan_info, back_button_req=1, title='--eth0 VLAN--')
+    display_simple_table(vlan_info, back_button_req=1, title='--Eth0 VLAN--')
 
 
 def show_wpa_passphrase():
@@ -1252,14 +1255,13 @@ def reboot():
     global oled
     global shutdown_in_progress
     global screen_cleared
+    global reboot_image
     
     display_dialog_msg('Rebooting...', back_button_req=0)
     time.sleep(1)
 
-    image1 = Image.open('reboot.png').convert('1')
-    oled.drawImage(image1)
+    oled.drawImage(reboot_image)
 
-    #oled.clearDisplay()
     screen_cleared = True
     
     os.system('systemctl reboot')
@@ -1276,6 +1278,7 @@ def switcher(resource_title, resource_switcher_file, mode_name):
     global screen_cleared
     global current_mode
     global display_state
+    global reboot_image
     
     # check resource is available
     if not os.path.isfile(resource_switcher_file):
@@ -1303,9 +1306,8 @@ def switcher(resource_title, resource_switcher_file, mode_name):
     display_dialog_msg(dialog_msg, back_button_req)
     shutdown_in_progress = True
     time.sleep(2)
-    #oled.clearDisplay()
-    image1 = Image.open('reboot.png').convert('1')
-    oled.drawImage(image1)
+
+    oled.drawImage(reboot_image)
     screen_cleared = True
     
     try:
@@ -1770,15 +1772,15 @@ menu = [
       { "name": "Network", "action": [
             { "name": "Interfaces", "action": show_interfaces},
             { "name": "WLAN Interfaces", "action": show_wlan_interfaces},
-            { "name": "eth0 ipconfig", "action": show_eth0_ipconfig},
-            { "name": "eth0 VLAN", "action": show_vlan},
-            { "name": "LLDP neighbour", "action": show_lldp_neighbour},
-            { "name": "CDP neighbour", "action": show_cdp_neighbour},
+            { "name": "Eth0 IP Config", "action": show_eth0_ipconfig},
+            { "name": "Eth0 VLAN", "action": show_vlan},
+            { "name": "LLDP Neighbour", "action": show_lldp_neighbour},
+            { "name": "CDP Neighbour", "action": show_cdp_neighbour},
         ]
       },
       { "name": "Utils", "action": [
             { "name": "Reachability", "action": show_reachability},
-            { "name": "WPA passphrase", "action": show_wpa_passphrase},
+            { "name": "WPA Passphrase", "action": show_wpa_passphrase},
             { "name": "USB Devices", "action": show_usb},
             { "name": "UFW Ports", "action": show_ufw},
         ]
@@ -1850,11 +1852,11 @@ menu = [
             { "name": "2.WLAN Interfaces", "action": show_wlan_interfaces},
             { "name": "3.USB Devices", "action": show_usb},
             { "name": "4.UFW Ports", "action": show_ufw},
-            { "name": "5.eth0 ipconfig", "action": show_eth0_ipconfig},
-            { "name": "6.eth0 VLAN", "action": show_vlan},
-            { "name": "7.LLDP neighbour", "action": show_lldp_neighbour},
-            { "name": "8.CDP neighbour", "action": show_cdp_neighbour},
-            { "name": "9.WPA passphrase", "action": show_wpa_passphrase},
+            { "name": "5.Eth0 IP Config", "action": show_eth0_ipconfig},
+            { "name": "6.Eth0 VLAN", "action": show_vlan},
+            { "name": "7.LLDP Neighbour", "action": show_lldp_neighbour},
+            { "name": "8.CDP Neighbour", "action": show_cdp_neighbour},
+            { "name": "9.WPA Passphrase", "action": show_wpa_passphrase},
             { "name": "10.Reachability", "action": show_reachability},
         ]
       },
@@ -2089,8 +2091,8 @@ while True:
         
     except KeyboardInterrupt:
         break
-    except IOError:
-        print ("Error")
+    except IOError as ex:
+        print ("Error " + str(ex))
 
 '''
 Discounted ideas
