@@ -60,6 +60,7 @@ History:
  0.30   Added shutdown and reboot dialog images (Nigel 22/12/2019)
  0.31   Added main loop error handling improvement and reboot image fix (Nigel 23/12/2019)
  0.32   Minor menu updates to network info menu & tests now run when no def gw (Jiri 26/12/2019)
+ 0.33   Secondary addr on USB causing 2 IP addr on home page - added head command to fix (Nigel 26/12/2019) 
 
 To do:
     1. Error handling to log?
@@ -1617,7 +1618,7 @@ def home_page():
             if_name = "usb0"
             mode_name = ""
     
-    ip_addr_cmd = "ip addr show {}  2>/dev/null | grep -Po \'inet \K[\d.]+\'".format(if_name) 
+    ip_addr_cmd = "ip addr show {}  2>/dev/null | grep -Po \'inet \K[\d.]+\' | head -n 1".format(if_name) 
 
     try:
         ip_addr = subprocess.check_output(ip_addr_cmd, shell=True)
