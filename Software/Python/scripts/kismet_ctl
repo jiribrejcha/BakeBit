@@ -60,8 +60,12 @@ kismet_stop () {
   fi
   
   # Kismet docs also recommend restarting networking when Kismet
-  # stops, so we'll do that for good measure (silently)
-  sudo service networking restart
+  # stops, so we'll do that for good measure (silently) - this caused lots
+  # of conenctivity & networking related issues, so changed to just a bounce
+  # of the wlan0 interface (Nigel 30/12/19)
+  #sudo service networking restart
+  /bin/ip link set dev wlan0 down
+  /bin/ip link set dev wlan0 up
 }
 
 ###############################################################################
