@@ -1229,6 +1229,46 @@ def show_wpa_passphrase():
 
     display_simple_table(choppedoutput, back_button_req=1, title='--WPA passphrase--')
 
+
+def show_speedtest():
+    '''
+    Run speedtest.net speed test and format output to fit the OLED screen
+    '''
+    global display_state
+
+    display_dialog_msg('Running Speedtest...', back_button_req=1)
+
+    speedtest_info = []
+    speedtest_cmd = "speedtest | egrep -w \"Testing from|Download|Upload\" | sed 's/Testing from /My IP: /g; s/\.\.\.//g; s/Download/D/g; s/Upload/U/g; s/(//g; s/)//g; s/bit\/s/bps/g'"
+
+    try:
+        speedtest_output = subprocess.check_output(speedtest_cmd, shell=True)
+        speedtest_info = speedtest_output.split('\n')
+
+    except Exception as ex:
+        error_descr = "Speedtest error"
+        error= [ "Err: Speedtest error" ]
+        display_simple_table(error, back_button_req=1)
+        return
+
+    if len(speedtest_info) == 0:
+        speedtest_info.append("No output sorry")
+
+    # chop down output to fit up to 2 lines on display
+    choppedoutput = []
+
+    for n in speedtest_info:
+        choppedoutput.append(n[0:20])
+        if len(n) > 20:
+            choppedoutput.append(n[20:40])
+
+    # final check no-one pressed a button before we render page
+    if display_state == 'menu':
+        return
+
+    display_simple_table(choppedoutput, back_button_req=1, title='--Speedtest--')
+    time.sleep(300)
+
 def show_menu_ver():
 
     global __version__
@@ -1782,6 +1822,7 @@ menu = [
       },
       { "name": "Utils", "action": [
             { "name": "Reachability", "action": show_reachability},
+            { "name": "Speedtest", "action": show_speedtest},
             { "name": "WPA Passphrase", "action": show_wpa_passphrase},
             { "name": "USB Devices", "action": show_usb},
             { "name": "UFW Ports", "action": show_ufw},
