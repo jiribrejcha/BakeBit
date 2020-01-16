@@ -11,11 +11,11 @@ if [ ! "$DATAINJSON" ]; then
 fi
 
 #Parse them
-PUBLICIP=$(echo "$DATAINJSON" | python3 -c "import sys, json; print(json.load(sys.stdin)['ip'])")
-PUBLICIPCOUNTRY=$(echo "$DATAINJSON" | python3 -c "import sys, json; print(json.load(sys.stdin)['country'])")
-PUBLICIPASNORG=$(echo "$DATAINJSON" | python3 -c "import sys, json; print(json.load(sys.stdin)['asn_org'])")
-PUBLICIPHOSTNAME=$(echo "$DATAINJSON" | python3 -c "import sys, json; print(json.load(sys.stdin)['hostname'])")
-PUBLICIPASN=$(echo "$DATAINJSON" | python3 -c "import sys, json; print(json.load(sys.stdin)['asn'])")
+PUBLICIP=$(echo "$DATAINJSON" | grep -Po '"ip":"\K[^"]*')
+PUBLICIPCOUNTRY=$(echo "$DATAINJSON" | grep -Po '"country":"\K[^"]*')
+PUBLICIPASNORG=$(echo "$DATAINJSON" | grep -Po '"asn_org":"\K[^"]*')
+PUBLICIPHOSTNAME=$(echo "$DATAINJSON" | grep -Po '"hostname":"\K[^"]*')
+PUBLICIPASN=$(echo "$DATAINJSON" | grep -Po '"asn":"\K[^"]*')
 
 #Display data
 if [ "$PUBLICIP" ]; then
